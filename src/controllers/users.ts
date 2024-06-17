@@ -4,6 +4,7 @@ import passport from "passport";
 
 
 import dotenv from "dotenv"
+import { disposeEmitNodes } from "typescript";
 
 // dotenv.config();
 
@@ -15,18 +16,18 @@ import dotenv from "dotenv"
 //     key: string; // Make 'key' optional
 // }
 
-// interface AuthenticatedRequest extends Request { //for TS
-//     isAuthenticated(): boolean;
-//     login(user: IUser, done: (err: any) => void): void;
-//     login(
-//         user: IUser,
-//         options: passport.AuthenticateOptions,
-//         done: (err: any) => void
-//     ): void;
-    // logout(callback: (err: any) => void): void;
-    // logout(options: passport.LogOutOptions, done: (err: any) => void): void;
-    // user?: IUser;
-// }
+interface AuthenticatedRequest extends Request { //for TS
+    // isAuthenticated(): boolean;
+    login(user: IUser, done: (err: any) => void): void;
+    login(
+        user: IUser,
+        options: passport.AuthenticateOptions,
+        done: (err: any) => void
+    ): void;
+    logout(callback: (err: any) => void): void;
+    logout(options: passport.LogOutOptions, done: (err: any) => void): void;
+    user?: IUser;
+}
 
 // export const registerUser = async (
 //     req: AuthenticatedRequest,
@@ -115,23 +116,23 @@ import dotenv from "dotenv"
 //     }
 // };
 
-// export const logoutUser = (
-//     req: AuthenticatedRequest,
-//     res: Response,
-//     next: NextFunction
-// ) => {
-//   req.logout(function (err) {
-//     req.session.destroy(msg => {
-//       if (msg) {
-//         return console.log(msg);
-//     }
-//     });
-//     if (err) {
-//       return next(err);
-//     }
-//   });
-//     res.json({ auth: true, msg: "Logout success" });
-// };
+export const logoutUser = (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+  req.logout(function (err) {
+    req.session.destroy(msg => {
+      if (msg) {
+        return console.log(msg);
+    }
+    });
+    if (err) {
+      return next(err);
+    }
+  });
+    res.json({ auth: true, msg: "Logout success" });
+};
 
 // export const fetchUser = async (req: Request, res: Response) => {
 //     const { userId, thumbnailDim } = req.params;
@@ -145,35 +146,31 @@ import dotenv from "dotenv"
 //     return res.json({ msg: "User found", user: foundUser });
 // };
 
-export const registerUser = async( 
-	req: Request, res: Response
+export const registerUser = async ( 
+	req: AuthenticatedRequest, res: Response
 ) => { 
-	try {
-			const { email, username, password } = req.body;
-
-			const user = new User({ email, username });
-
-			await User.register(user, password, function (err, registeredUser) {
-					if (err) {
-							return res.send({err });
-					} else {
-							// Registration successful, proceed with login
-							req.login(registeredUser, (err) => {
-									if (err) {
-											return res.send(err);
-									}
-									return res.send({
-											auth: true,
-											// username: req.user.username,
-											// id: req.user._id,
-											msg: "Register successfully",
-									});
-							});
-					}
-		  });
-		    } catch (e) {
-		        res.send(e);
-		    }
+  try {
+    const { email, lastName, firstName, password } = req.body;
+    const user = new User({email, lastName, firstName });
+    await User.register(user, password, function (err, registeredUser) {
+        if (err) {
+            return res.send({err });
+        } else {
+            // Registration successful, proceed with login
+            req.login(registeredUser, (err) => {
+                if (err) {
+                    return res.send(err);
+                }
+                return res.status(200).send({
+                    auth: true,
+                    msg: "Register successfully",
+                });
+            });
+        }
+    });
+      } catch (e) {
+          res.send(e);
+      }
 }
 
 export const loginUser = (
@@ -183,6 +180,7 @@ export const loginUser = (
         try {
             if (!user)
                 res.json({
+										//req.isAuthenticated() is to check if the users is ALREADY log in
                     auth: req.isAuthenticated(),
                     msg: "Username or Password is incorrect",
                 });
@@ -191,11 +189,10 @@ export const loginUser = (
                     if (err) throw err;
                     res.json({
 											auth: req.isAuthenticated(),
-											msg: "login success"
+											msg: "login success",
                         // username: req.user.username,
                         // id: req.user._id,
                     });
-                    console.log(req.user);
                     console.log("login sucess");
                 });
             }

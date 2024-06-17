@@ -1,5 +1,9 @@
+import { Strategy as LocalStrategy } from "passport-local";
+import { User } from "./models/users";
+
 import express from "express";
 import { Request, Response, NextFunction } from "express";
+
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import IORedis from "ioredis";
@@ -7,8 +11,6 @@ import RedisStore from "connect-redis";
 import session from "express-session";
 import passport from "passport";
 
-import { Strategy as LocalStrategy } from "passport-local";
-import { User } from "./models/users";
 
 
 import userRoutes from "./routes/users";
@@ -65,28 +67,26 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // use static authenticate method of model in LocalStrategy
+
 passport.use(new LocalStrategy({
 	usernameField: 'email'
 }, User.authenticate()));
 
 // use static serialize and deserialize of model for passport session support
+
 passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
+passport.deserializeUser( User.deserializeUser());
 
 
 
-app.use((req: Request, res: Response, next: NextFunction) => {
-  res.locals.currentUser = req.user; //
-  next();
-});
+// app.use((req: Request, res: Response, next: NextFunction) => {
+//   res.locals.currentUser = req.user; //
+//   next();
+// });
 
 
 app.use("/", userRoutes);
 
-
-app.get('/api', (req, res) => {
-  res.send('Hello World!')
-})
 
 
 

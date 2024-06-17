@@ -1,26 +1,14 @@
-
-// const mongoose = require('mongoose');
-// const Schema = mongoose.Schema;
-
-import mongoose, { Schema, PassportLocalDocument, } from "mongoose"
+import mongoose, {
+  Document,
+  PassportLocalDocument,
+  Model,
+  PassportLocalModel,
+  Schema,
+} from "mongoose";
 import passportLocalMongoose from "passport-local-mongoose";
-
-const UserSchema = new Schema({
-  username: {
-    type: String,
-    required: true,
-    unique: true
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true
-  }
-});
 
 interface IUser extends PassportLocalDocument {
   _doc?: any;
-  username: string; //?
   email: string;
   // avatar: {
   //     url: string;
@@ -30,10 +18,30 @@ interface IUser extends PassportLocalDocument {
   // thumbnail?: string; // This is the result of the virtual "thumbnail" property
 }
 
-UserSchema.plugin(passportLocalMongoose,{
+
+const userSchema: Schema = new Schema({
+  email: {
+    type: String,
+    required: true,
+    unique: true
+	},
+	lastName: {
+    type: String,
+    required: true,
+	},
+	firstName: {
+    type: String,
+    required: true,
+	},
+});
+
+
+interface UserModel<T extends Document> extends PassportLocalModel<T> { }
+
+userSchema.plugin(passportLocalMongoose, {
 	usernameField: 'email'
 });
 
-const User = mongoose.model('user', UserSchema);
+const User: UserModel<IUser> = mongoose.model<IUser>("User", userSchema);
 
-export {User, IUser}
+export { IUser, User };

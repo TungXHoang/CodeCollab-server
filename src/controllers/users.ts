@@ -29,92 +29,23 @@ interface AuthenticatedRequest extends Request { //for TS
     user?: IUser;
 }
 
-// export const registerUser = async (
-//     req: AuthenticatedRequest,
-//     res: Response
-// ) => {
-//     try {
-//         const { email, username, password } = req.body;
-//         const uploadedFile = req.file as unknown as ExtendedFile;
-//         const avatar = uploadedFile
-//             ? { url: uploadedFile.location, filename: uploadedFile.key }
-//             : {
-//                   //default image
-//                   url: process.env.AWS_DEFAULT_URL,
-//                   filename: process.env.AWS_DEFAULT_FILENAME,
-//               };
-//         const user = new User({ email, username, avatar });
-
-//         await User.register(user, password, function (err, registeredUser) {
-//             if (err) {
-//                 return res.send({err });
-//             } else {
-//                 // Registration successful, proceed with login
-//                 req.login(registeredUser, (err) => {
-//                     if (err) {
-//                         return res.send(err);
-//                     }
-//                     return res.send({
-//                         auth: true,
-//                         username: req.user.username,
-//                         id: req.user._id,
-//                         msg: "Register successfully",
-//                     });
-//                 });
-//             }
-//         });
-//     } catch (e) {
-//         res.send(e);
-//     }
-// };
-
-// export const loginUser = (
-//     req: AuthenticatedRequest,
-//     res: Response,
-//     next: NextFunction
-// ) => {
-//     passport.authenticate("local", (_err: Error, user: IUser) => {
-//         try {
-//             if (!user)
-//                 res.json({
-//                     auth: req.isAuthenticated(),
-//                     msg: "Username or Password is incorrect",
-//                 });
-//             else {
-//                 req.login(user, (err) => {
-//                     if (err) throw err;
-//                     res.json({
-//                         auth: req.isAuthenticated(),
-//                         username: req.user.username,
-//                         id: req.user._id,
-//                     });
-//                     console.log(req.user);
-//                     console.log("login sucess");
-//                 });
-//             }
-//         } catch (err) {
-//             console.log(err);
-//         }
-//     })(req, res, next);
-// };
-
-// export const authenticateUser = async (
-//     req: AuthenticatedRequest,
-//     res: Response
-// ) => {
-//     try {
-//         if (req.isAuthenticated()) {
-//             return res.json({
-//                 auth: true,
-//                 user: req.user.username,
-//                 id: req.user._id,
-//             });
-//         }
-//         return res.json({ auth: false, message: "cannot authenticate" });
-//     } catch (e) {
-//         console.log(e);
-//     }
-// };
+export const authenticateUser = async (
+    req: AuthenticatedRequest,
+    res: Response
+) => {
+    try {
+        if (req.isAuthenticated()) {
+            return res.json({
+                auth: true,
+                user: req.user.email,
+                id: req.user._id,
+            });
+        }
+        return res.json({ auth: false, message: "cannot authenticate" });
+    } catch (e) {
+        console.log(e);
+    }
+};
 
 export const logoutUser = (
     req: Request,

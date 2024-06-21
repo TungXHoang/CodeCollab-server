@@ -46,9 +46,8 @@ redisClient.on('connect', function () {
 
 // Session Management 
 const sessionConfig: session.SessionOptions = {
-  // store,
     store: new RedisStore({ client: redisClient }),
-    name: process.env.SESS_COOKIE,
+    // name: process.env.SESS_COOKIE,
     secret: "keyword",
     resave: false,
     saveUninitialized: false,
@@ -84,11 +83,14 @@ passport.deserializeUser( User.deserializeUser());
 //   next();
 // });
 
+app.get('/', (req, res) => {
+	/* @ts-ignore */
+	req.session.sth = 'foo'
+	console.log(req)
+	res.send('Hello World!')
+})
 
 app.use("/", userRoutes);
-
-
-
 
 app.listen(port, () => {
   console.log(`Example app listening port ${port}`)

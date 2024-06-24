@@ -48,7 +48,7 @@ redisClient.on('connect', function () {
 const sessionConfig: session.SessionOptions = {
     store: new RedisStore({ client: redisClient }),
     // name: process.env.SESS_COOKIE,
-    secret: "keyword",
+    secret: process.env.SECRET as string ,
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -65,7 +65,7 @@ app.use(session(sessionConfig));
 app.use(passport.initialize());
 app.use(passport.session());
 
-// use static authenticate method of model in LocalStrategy
+// use static authenticate method of model in LocalStrategy 
 
 passport.use(new LocalStrategy({
 	usernameField: 'email'
@@ -77,20 +77,12 @@ passport.serializeUser(User.serializeUser());
 passport.deserializeUser( User.deserializeUser());
 
 
-
 // app.use((req: Request, res: Response, next: NextFunction) => {
 //   res.locals.currentUser = req.user; //
 //   next();
-// });
+// });34
 
-app.get('/', (req, res) => {
-	/* @ts-ignore */
-	req.session.sth = 'foo'
-	console.log(req)
-	res.send('Hello World!')
-})
-
-app.use("/", userRoutes);
+app.use("/api/users", userRoutes);
 
 app.listen(port, () => {
   console.log(`Example app listening port ${port}`)

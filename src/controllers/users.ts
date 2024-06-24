@@ -30,20 +30,20 @@ interface AuthenticatedRequest extends Request { //for TS
 }
 
 export const authenticateUser = async (
-    req: AuthenticatedRequest,
-    res: Response
+	req: AuthenticatedRequest,
+	res: Response
 ) => {
     try {
-        if (req.isAuthenticated()) {
-            return res.json({
-                auth: true,
-                user: req.user.email,
-                id: req.user._id,
-            });
-        }
-        return res.json({ auth: false, message: "cannot authenticate" });
+      if (req.user) { // req.user create by pasportJS 
+				return res.json({
+						auth: true,
+						user: req.user.email,
+						id: req.user._id,
+				});
+			}
+      return res.json({ auth: false, message: "cannot authenticate" });
     } catch (e) {
-        console.log(e);
+			console.log(e);
     }
 };
 

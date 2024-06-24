@@ -34,14 +34,15 @@ export const authenticateUser = async (
 	res: Response
 ) => {
     try {
-      if (req.user) { // req.user create by pasportJS 
+			if (req.user) { // req.user create by pasportJS 
+				const userObj = req.user.toObject();
+				delete userObj.__v;
 				return res.json({
-						auth: true,
-						user: req.user.email,
-						id: req.user._id,
+					...userObj,
+					auth: true
 				});
 			}
-      return res.json({ auth: false, message: "cannot authenticate" });
+      return res.json({ auth: false, _id: "", lastName: "", firstName : "" });
     } catch (e) {
 			console.log(e);
     }
@@ -65,17 +66,6 @@ export const logoutUser = (
     res.json({ auth: true, msg: "Logout success" });
 };
 
-// export const fetchUser = async (req: Request, res: Response) => {
-//     const { userId, thumbnailDim } = req.params;
-//     const user = await User.findById(userId);
-//     if (!user) {
-//         return res.json({ msg: "User does not exist" });
-//     }
-//     const dim = parseInt(thumbnailDim, 10); //convert thumbnailDim to int
-//     user._thumbnailSize = { width: dim, height: dim };
-//     const foundUser = Object.assign({ thumbnail: user.thumbnail }, user._doc);
-//     return res.json({ msg: "User found", user: foundUser });
-// };
 
 export const registerUser = async ( 
 	req: AuthenticatedRequest, res: Response
@@ -84,51 +74,51 @@ export const registerUser = async (
     const { email, lastName, firstName, password } = req.body;
     const user = new User({email, lastName, firstName });
     await User.register(user, password, function (err, registeredUser) {
-        if (err) {
-            return res.send({err });
-        } else {
-            // Registration successful, proceed with login
-            req.login(registeredUser, (err) => {
-                if (err) {
-                    return res.send(err);
-                }
-                return res.status(200).send({
-                    auth: true,
-                    msg: "Register successfully",
-                });
-            });
-        }
+			if (err) {
+					return res.send({err });
+			} else {
+					// Registration successful, proceed with login
+				req.login(registeredUser, (err) => {
+					if (err) {
+						return res.send(err);
+					}
+					return res.status(200).send({
+						auth: true,
+						msg: "Register successfully",
+					});
+					});
+			}
     });
-      } catch (e) {
-          res.send(e);
-      }
+	} catch (e) {
+			res.send(e);
+	}
 }
 
 export const loginUser = (
     req: Request, res: Response, next: NextFunction
 ) => {
-    passport.authenticate("local", (_err: Error, user: IUser) => {
-        try {
-            if (!user)
-                res.json({
-										//req.isAuthenticated() is to check if the users is ALREADY log in
-                    auth: req.isAuthenticated(),
-                    msg: "Username or Password is incorrect",
-                });
-            else {
-                req.login(user, (err) => {
-                    if (err) throw err;
-                    res.json({
-											auth: req.isAuthenticated(),
-											msg: "login success",
-                        // username: req.user.username,
-                        // id: req.user._id,
-                    });
-                    console.log("login sucess");
-                });
-            }
-        } catch (err) {
-            console.log(err);
-        }
-    })(req, res, next);
+	passport.authenticate("local", (_err: Error, user: IUser) => {
+		try {
+			if (!user)
+					res.json({
+							//req.isAuthenticated() is to check if the users is ALREADY log in
+							auth: req.isAuthenticated(),
+							msg: "Username or Password is incorrect",
+					});
+			else {
+				req.login(user, (err) => {
+					if (err) throw err;
+					res.json({
+						auth: req.isAuthenticated(),
+						msg: "login success",
+							// username: req.user.username,
+							// id: req.user._id,
+					});
+					console.log("login sucess");
+				});
+			}
+			} catch (err) {
+					console.log(err);
+			}
+	})(req, res, next);
 };

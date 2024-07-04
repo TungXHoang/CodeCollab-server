@@ -11,9 +11,9 @@ import RedisStore from "connect-redis";
 import session from "express-session";
 import passport from "passport";
 
-
-
 import userRoutes from "./routes/users";
+import compilerRoutes from "./routes/compiler"
+
 dotenv.config();
 
 const app = express();
@@ -83,6 +83,8 @@ passport.deserializeUser( User.deserializeUser());
 // });34
 
 app.use("/api/users", userRoutes);
+app.use("/api/compiler", compilerRoutes);
+
 
 app.listen(port, () => {
   console.log(`Example app listening port ${port}`)

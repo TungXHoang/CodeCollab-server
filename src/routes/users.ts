@@ -19,6 +19,7 @@ router
 router.route("/login").post(loginUser as RequestHandler);
 router.route("/logout").post(logoutUser as RequestHandler);
 router.route("/auth").post(authenticateUser as RequestHandler);
+
 // router.route("/api/users/:userId/:thumbnailDim").get(fetchUser as RequestHandler);
 
 export = router;

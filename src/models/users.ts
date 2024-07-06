@@ -1,7 +1,6 @@
 import mongoose, {
   Document,
   PassportLocalDocument,
-  Model,
   PassportLocalModel,
   Schema,
 } from "mongoose";

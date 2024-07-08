@@ -1,13 +1,19 @@
 import mongoose from "mongoose";
 
 const projectSchema = new mongoose.Schema({
-	owner: [
-		{
-			type: mongoose.Schema.Types.ObjectId,
-			ref: "User",
-			required: true,
-		}
-	],
+	language: {
+		type: String,
+		required: true
+	},
+	owner: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: "User",
+		required: true,
+	},
+	title: {
+		type: String,
+		required: true,
+	},
 	messages: [
 		{
 			type: mongoose.Schema.Types.ObjectId,
@@ -19,4 +25,4 @@ const projectSchema = new mongoose.Schema({
 
 const Project = mongoose.model("Project", projectSchema);
 
-export default Project;
+export {Project};

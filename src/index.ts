@@ -13,6 +13,7 @@ import passport from "passport";
 
 import userRoutes from "./routes/users";
 import compilerRoutes from "./routes/compiler"
+import projectRoutes from "./routes/project"
 
 dotenv.config();
 
@@ -84,7 +85,7 @@ passport.deserializeUser( User.deserializeUser());
 
 app.use("/api/users", userRoutes);
 app.use("/api/compiler", compilerRoutes);
-
+app.use("/api/projects", projectRoutes); 
 
 app.listen(port, () => {
   console.log(`Example app listening port ${port}`)

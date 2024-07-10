@@ -24,3 +24,21 @@ export const createProject = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'An error occurred while creating the project.' });
   }
 };
+
+export const deleteProject = async (req: Request, res: Response) => {
+	try {
+		const { userId, projectId } = req.body
+		const deleteProject = await Project.findById(projectId);
+		if (userId == deleteProject.owner.toString()) {
+			await deleteProject.deleteOne();
+			res.status(200).json({message:"Delete Successfully"})
+		}
+		else {
+			res.status(500).json({message:"Must be owner in order to delete"})
+		}
+	}
+	catch (err) {
+		console.error(err);
+		res.status(500).json({ error: 'An error occurred while deleting the project.' });
+	}
+}

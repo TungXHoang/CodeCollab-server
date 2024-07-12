@@ -1,8 +1,8 @@
 import express, { Router } from "express";
-import { getProjects, createProject, deleteProject } from "../controllers/projects"
+import { getUserProjects, getProject, createProject, deleteProject } from "../controllers/projects"
 
 const router: Router = express.Router();
 
-router.route("/").get(getProjects).post(createProject).delete(deleteProject);
-
+router.route("/").get(getUserProjects).post(createProject).delete(deleteProject);
+router.route("/:projectId").get(getProject)
 export = router;

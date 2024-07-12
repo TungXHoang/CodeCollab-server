@@ -20,7 +20,13 @@ const projectSchema = new mongoose.Schema({
 			ref: "Snippet",
 			default: []
 		}
-	]
+	],
+	collaborators: [
+		{
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "User",
+		},
+	],
 }, { timestamps: true })
 
 const Project = mongoose.model("Project", projectSchema);

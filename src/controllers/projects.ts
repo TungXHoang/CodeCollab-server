@@ -2,17 +2,29 @@ import {Project} from "../models/projects";
 import { Request, Response, NextFunction } from "express";
 import { IUser } from "../models/users";
 
-export const getProjects = async (req: Request, res: Response) => {
+export const getUserProjects = async (req: Request, res: Response) => {
 	try {
 		const loggedInUser = req.user as IUser;
 		const filteredProject = await Project.find({ owner: loggedInUser._id })
-		// console.log(filteredProject);
 		res.status(200).json(filteredProject);
 	} catch (error) {
-		console.error("Error in getProjects ", (error as Error).message);
+		console.error("Error in getUserProjects ", (error as Error).message);
 		res.status(500).json({ error: "Internal server error" });
 	}
 };
+
+export const getProject = async (req: Request, res: Response) => {
+	try {
+		const projectId = req.params.projectId
+		const returnProject = await Project.findById(projectId)
+		res.status(200).json(returnProject);
+	}
+	catch (err) {
+		console.error("Error in getProjects ", (err as Error).message);
+		res.status(500).json({ error: "Internal server error" });
+	}
+	
+}
 
 export const createProject = async (req: Request, res: Response) => {
   try {

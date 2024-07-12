@@ -1,6 +1,10 @@
 import mongoose from "mongoose";
 
 const projectSchema = new mongoose.Schema({
+	languageId: {
+		type: Number,
+		required: true
+	},
 	language: {
 		type: String,
 		required: true

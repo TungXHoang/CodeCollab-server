@@ -4,21 +4,17 @@ import { Request, Response } from "express";
 dotenv.config()
 
 interface IRequestBody {
-	language: {
-		id: number,
-		name: string,
-		label: string,
-		value: string
-	}
+	languageId: number
 	code: string
 }
 
 export const handleCompile = async(req: Request, res: Response) => {
-	const { language, code }: IRequestBody = req.body;
+	const { languageId, code }: IRequestBody = req.body;
 	const formData = {
-		language_id: language.id,
+		language_id: languageId,
 		source_code: btoa(code),
 	};
+	console.log(formData);
 	const options = {
 		method: 'POST',
 		url: process.env.RAPID_API_URL,

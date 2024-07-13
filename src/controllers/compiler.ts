@@ -14,7 +14,7 @@ export const handleCompile = async(req: Request, res: Response) => {
 		language_id: languageId,
 		source_code: btoa(code),
 	};
-	console.log(formData);
+	// console.log(formData);
 	const options = {
 		method: 'POST',
 		url: process.env.RAPID_API_URL,
@@ -30,7 +30,7 @@ export const handleCompile = async(req: Request, res: Response) => {
 
 	try {
 		const response = await axios.request(options);
-		console.log('res.data', response.data);
+		// console.log('res.data', response.data);
 		const token = response.data.token;
 		res.json({ token });
 		return response;

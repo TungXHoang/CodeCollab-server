@@ -1,7 +1,7 @@
 import {Project} from "../models/projects";
 import { Request, Response, NextFunction } from "express";
 import { IUser } from "../models/users";
-
+import {codeSnippets} from "../constants";
 export const getUserProjects = async (req: Request, res: Response) => {
 	try {
 		const loggedInUser = req.user as IUser;
@@ -28,7 +28,11 @@ export const getProject = async (req: Request, res: Response) => {
 
 export const createProject = async (req: Request, res: Response) => {
   try {
-    let project = new Project(req.body);
+		let project = new Project(req.body);
+		if (project.language in codeSnippets) {
+			// default code.
+			project.code = codeSnippets[project.language]
+		}
     const newProject = await project.save();
     res.status(201).json(newProject);
   } catch (err) {

@@ -18,13 +18,10 @@ const projectSchema = new mongoose.Schema({
 		type: String,
 		required: true,
 	},
-	messages: [
-		{
-			type: mongoose.Schema.Types.ObjectId,
-			ref: "Snippet",
-			default: []
-		}
-	],
+	code: {
+		type: String,
+		// required: true,
+	},
 	collaborators: [
 		{
 			type: mongoose.Schema.Types.ObjectId,

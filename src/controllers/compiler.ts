@@ -30,7 +30,6 @@ export const handleCompile = async(req: Request, res: Response) => {
 
 	try {
 		const response = await axios.request(options);
-		// console.log('res.data', response.data);
 		const token = response.data.token;
 		res.json({ token });
 		return response;

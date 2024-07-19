@@ -21,12 +21,6 @@ const projectSchema = new mongoose.Schema({
 	code: {
 		type: String,
 	},
-	// collaborators: [
-	// 	{
-	// 		type: mongoose.Schema.Types.ObjectId,
-	// 		ref: "User",
-	// 	},
-	// ],
 }, { timestamps: true })
 
 
@@ -41,10 +35,19 @@ const guestListSchema = new mongoose.Schema({
 		ref: "User",
 		required: true,
 	},
-	})
+})
+	
+// virtual 
+// guestListSchema.index({ projectId: 1, guestId: 1 }, { unique: true});
+// guestListSchema.virtual('project',{
+// 	ref: 'Project',
+// 	localField: 'projectId',
+// 	foreignField: '_id',
+// 	justOne: true
+// });
 
-// guestListSchema.set('autoIndex', false);
-guestListSchema.index({ projectId: 1, guestId: 1 }, { unique: true});
+// guestListSchema.set('toObject', { virtuals: true });
+// guestListSchema.set('toJSON', { virtuals: true });
 
 const Project = mongoose.model("Project", projectSchema);
 const GuestList = mongoose.model("GuestList", guestListSchema);

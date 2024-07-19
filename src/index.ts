@@ -15,6 +15,7 @@ import userRoutes from "./routes/users";
 import compilerRoutes from "./routes/compiler"
 import projectRoutes from "./routes/project"
 import docRoutes from "./routes/doc";
+import guestRoutes from "./routes/guest"
 
 dotenv.config();
 
@@ -88,7 +89,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/compiler", compilerRoutes);
 app.use("/api/projects", projectRoutes); 
 app.use("/api/docs", docRoutes); 
-
+app.use("/api/guests", guestRoutes)
 app.listen(port, () => {
   console.log(`Example app listening port ${port}`)
 })

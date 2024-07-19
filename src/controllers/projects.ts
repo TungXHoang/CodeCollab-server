@@ -7,9 +7,12 @@ import { MongoError } from 'mongodb';
 
 export const getUserProjects = async (req: Request, res: Response) => {
 	try {
-		const loggedInUser = req.user as IUser; //fix this
-		const filteredProject = await Project.find({ owner: loggedInUser._id })
-		res.status(200).json(filteredProject);
+		const userId = req.params.userId;
+		const OwnedProject = await Project.find({ owner: userId })
+		//clean up guest project
+		const guest = await GuestList.find({ guestId: userId }).populate("projectId");;
+		const GuestProject = guest.map(guest => guest.projectId);
+		res.status(200).json({owner: OwnedProject, guest:GuestProject});
 	} catch (error) {
 		console.error("Error in getUserProjects ", (error as Error).message);
 		res.status(500).json({ error: "Internal server error" });
@@ -26,7 +29,6 @@ export const getProject = async (req: Request, res: Response) => {
 		console.error("Error in getProjects ", (err as Error).message);
 		res.status(500).json({ error: "Internal server error" });
 	}
-	
 }
 
 export const createProject = async (req: Request, res: Response) => {
@@ -91,4 +93,17 @@ export const shareProject = async (req: Request, res: Response) => {
 		console.log(err);
 		res.status(500).json({ error: 'An error occurred while sharing the project.' });
 	}
+}
+
+export const getGuestList = async (req: Request, res: Response) => {
+	try {
+		const projectId = req.params.projectId
+		const GuestsList = await GuestList.find({ projectId: projectId })
+		res.status(200).json(GuestsList);
+	}
+	catch (err) {
+		console.error("Error in getProjects ", (err as Error).message);
+		res.status(500).json({ error: "Internal server error" });
+	}
+	
 }

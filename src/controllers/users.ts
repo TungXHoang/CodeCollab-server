@@ -63,7 +63,7 @@ export const logoutUser = (
       return next(err);
     }
   });
-    res.json({ auth: true, msg: "Logout success" });
+    return res.json({ auth: true, msg: "Logout success" });
 };
 
 
@@ -75,7 +75,7 @@ export const registerUser = async (
     const user = new User({email, lastName, firstName });
     await User.register(user, password, function (err, registeredUser) {
 			if (err) {
-					return res.send({err });
+				return res.send({err });
 			} else {
 					// Registration successful, proceed with login
 				req.login(registeredUser, (err) => {
@@ -86,11 +86,11 @@ export const registerUser = async (
 						auth: true,
 						msg: "Register successfully",
 					});
-					});
+				});
 			}
     });
 	} catch (e) {
-			res.send(e);
+		res.send(e);
 	}
 }
 
@@ -100,21 +100,19 @@ export const loginUser = (
 	passport.authenticate("local", (_err: Error, user: IUser) => {
 		try {
 			if (!user)
-					res.json({
-							//req.isAuthenticated() is to check if the users is ALREADY log in
-							auth: req.isAuthenticated(),
-							msg: "Username or Password is incorrect",
-					});
+				return res.status(200).json({
+					//req.isAuthenticated() is to check if the users is ALREADY log in
+					auth: req.isAuthenticated(),
+					msg: "Username or Password is incorrect",
+				});
 			else {
 				req.login(user, (err) => {
 					if (err) throw err;
-					res.json({
+					return res.status(200).json({
 						auth: req.isAuthenticated(),
 						msg: "login success",
-							// username: req.user.username,
-							// id: req.user._id,
 					});
-					console.log("login sucess");
+					// console.log("login sucess");
 				});
 			}
 			} catch (err) {

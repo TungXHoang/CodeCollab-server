@@ -69,31 +69,38 @@ export const deleteProject = async (req: Request, res: Response) => {
 export const shareProject = async (req: Request, res: Response) => {
   try {
     const { ownerId, guestEmail, projectId } = req.body;
-    const shareProject = await Project.findById(projectId);
+		const shareProject = await Project.findById(projectId).populate("owner");
 
     if (!shareProject) {
-      return res.status(404).json({ error: 'Project not found' });
+      return res.status(404).json({ message: 'Project not found' });
     }
 
-    if (shareProject.owner.toString() !== ownerId) {
-      return res.status(401).json({ error: 'You are not authorized to share' });
-    }
+		// Only owner can share 
+    if (shareProject.owner._id.toString() !== ownerId) {
+      return res.status(401).json({ message: 'You are not authorized to share' });
+		}
+		
+		// Cannot add yourself to the guest lists
+		if (shareProject.owner.email === guestEmail) {
+			return res.status(404).json({ message: "Please enter appropriate user's email" });
+		}
 
+		// User does not exist
     const guestUser = await User.findOne({ email: guestEmail });
     if (!guestUser) {
-      return res.status(404).json({ error: 'The user does not exist' });
+      return res.status(404).json({ message: 'The user does not exist!' });
     }
 
     const guest = new GuestList({ guestId: guestUser._id, projectId: projectId });
     await guest.save();
 
-    return res.status(200).json({ message: 'Project shared successfully' });
+    return res.status(201).json({ message: 'Shared successfully' });
   } catch (err) {
     if ((err as MongoError).code === 11000) {
-      return res.status(405).json({ error: 'The user is already a guest of the project' });
+      return res.status(405).json({ message: 'The user is already a guest of the project' });
     }
 
     console.error('Error sharing project:', err);
-    return res.status(500).json({ error: 'An error occurred while sharing the project.' });
+    return res.status(500).json({ message: 'Internal server error.' });
   }
 };

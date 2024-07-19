@@ -7,7 +7,7 @@ export const updateDoc =  async (req: Request, res: Response)=> {
 	const update = {code: doc};
 	const filter = {_id: projectId}
 	const project = await Project.findOneAndUpdate(filter, update, { new: true });
-	res.status(201).json(project);
+	return res.status(201).json(project);
 } 
 
 export const getDoc = async (req: Request, res: Response) => {

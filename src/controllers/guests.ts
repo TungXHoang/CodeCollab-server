@@ -6,7 +6,7 @@ export const getGuestList = async (req: Request, res: Response) => {
 	try {
 		const projectId = req.params.projectId
 		const GuestsList = await GuestList.find({ projectId: projectId })
-		res.status(200).json(GuestsList);
+		return res.status(200).json(GuestsList);
 	}
 	catch (err) {
 		console.error("Error in getProjects ", (err as Error).message);

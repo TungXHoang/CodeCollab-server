@@ -10,7 +10,7 @@ export const codeSnippets:keyable = {
   csharp:
     'using System;\n\nnamespace HelloWorld\n{\n\tclass Hello { \n\t\tstatic void Main(string[] args) {\n\t\t\tConsole.WriteLine("Hello World in C#");\n\t\t}\n\t}\n}\n',
 	php: "<?php\n\n$name = 'Alex';\necho $name;\n",
-	cpp: "#include <iostream>\\n\\nint main() {\\n std::cout << \\\"Hello World!\\\";\\n return 0;\\n};",
+	cpp: "#include <iostream>\n\nint main() {\n std::cout << \"Hello World!\";\n return 0;\n};",
 	c: "#include <stdio.h>\nint main() {\n   printf(\"Hello, World!\");\n   return 0;\n}",
 	elixir: "defmodule HelloWorld do\n def hello do\n    IO.puts(\"Hello, World!\")\n  end\nend\n\nHelloWorld.hello()",
 	fortran: "program hello\n  print *, \"Hello, World!\"\nend program hello",

@@ -52,12 +52,4 @@ const guestListSchema = new mongoose.Schema({
 const Project = mongoose.model("Project", projectSchema);
 const GuestList = mongoose.model("GuestList", guestListSchema);
 
-// GuestList.ensureIndexes(function(err) {
-// 	if (err)
-// 			console.log(err);
-// 	else
-// 			console.log('create profile index successfully');
-// });
-
-
 export {Project, GuestList};

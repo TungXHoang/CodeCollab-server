@@ -17,16 +17,16 @@ import { disposeEmitNodes } from "typescript";
 // }
 
 interface AuthenticatedRequest extends Request { //for TS
-    // isAuthenticated(): boolean;
-    login(user: IUser, done: (err: any) => void): void;
-    login(
-        user: IUser,
-        options: passport.AuthenticateOptions,
-        done: (err: any) => void
-    ): void;
-    logout(callback: (err: any) => void): void;
-    logout(options: passport.LogOutOptions, done: (err: any) => void): void;
-    user?: IUser;
+	// isAuthenticated(): boolean;
+	login(user: IUser, done: (err: any) => void): void;
+	login(
+			user: IUser,
+			options: passport.AuthenticateOptions,
+			done: (err: any) => void
+	): void;
+	logout(callback: (err: any) => void): void;
+	logout(options: passport.LogOutOptions, done: (err: any) => void): void;
+	user?: IUser;
 }
 
 export const authenticateUser = async (
@@ -36,7 +36,7 @@ export const authenticateUser = async (
     try {
 			if (req.user) { // req.user create by pasportJS 
 				const userObj = req.user.toObject();
-				delete userObj.__v;
+				// delete userObj.__v;
 				return res.json({
 					...userObj,
 					auth: true
@@ -49,14 +49,14 @@ export const authenticateUser = async (
 };
 
 export const logoutUser = (
-    req: Request,
-    res: Response,
-    next: NextFunction
+	req: Request,
+	res: Response,
+	next: NextFunction
 ) => {
   req.logout(function (err) {
-    req.session.destroy(msg => {
-      if (msg) {
-        return console.log(msg);
+    req.session.destroy(err => {
+      if (err) {
+        return console.log(err);
     }
     });
     if (err) {

@@ -4,9 +4,7 @@ import { IUser } from "../models/users";
 
 export const updateDoc =  async (req: Request, res: Response)=> {
 	const { doc, projectId } = req.body;
-	const update = {code: doc};
-	const filter = {_id: projectId}
-	const project = await Project.findOneAndUpdate(filter, update, { new: true });
+	const project = await Project.findOneAndUpdate({_id: projectId}, {code: doc}, { new: true });
 	return res.status(201).json(project);
 } 
 

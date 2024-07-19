@@ -1,7 +1,6 @@
 import { Project, GuestList } from "../models/projects";
 import { User } from "../models/users";
 import { Request, Response, NextFunction } from "express";
-import { IUser } from "../models/users";
 import { codeSnippets } from "../constants";
 import { MongoError } from 'mongodb';
 
@@ -52,7 +51,10 @@ export const deleteProject = async (req: Request, res: Response) => {
 		const deleteProject = await Project.findById(projectId);
 		if (userId == deleteProject.owner.toString()) {
 			await deleteProject.deleteOne();
-			res.status(200).json({message:"Delete Successfully"})
+			// delete all ref
+			await GuestList.deleteMany({projectId: projectId })
+			res.status(200).json({ message: "Delete Successfully" })
+			
 		}
 		else {
 			res.status(404).json({message:"Must be owner in order to delete"})
@@ -95,15 +97,15 @@ export const shareProject = async (req: Request, res: Response) => {
 	}
 }
 
-export const getGuestList = async (req: Request, res: Response) => {
-	try {
-		const projectId = req.params.projectId
-		const GuestsList = await GuestList.find({ projectId: projectId })
-		res.status(200).json(GuestsList);
-	}
-	catch (err) {
-		console.error("Error in getProjects ", (err as Error).message);
-		res.status(500).json({ error: "Internal server error" });
-	}
+// export const getGuestList = async (req: Request, res: Response) => {
+// 	try {
+// 		const projectId = req.params.projectId
+// 		const GuestsList = await GuestList.find({ projectId: projectId })
+// 		res.status(200).json(GuestsList);
+// 	}
+// 	catch (err) {
+// 		console.error("Error in getProjects ", (err as Error).message);
+// 		res.status(500).json({ error: "Internal server error" });
+// 	}
 	
-}
+// }

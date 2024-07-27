@@ -7,9 +7,18 @@ import { MongoError } from 'mongodb';
 export const getUserProjects = async (req: Request, res: Response) => {
 	try {
 		const userId = req.params.userId;
-		const OwnedProject = await Project.find({ owner: userId })
-		//clean up guest project
-		const guest = await GuestList.find({ guestId: userId }).populate("projectId");;
+		const OwnedProject = await Project.find({ owner: userId }).populate("owner")
+
+		//clean up guest project, populate both guest info and project info
+		const guest = await GuestList.
+			find({ guestId: userId })
+			.populate({
+				path: 'projectId',
+				populate: {
+					path: 'owner',
+					model: 'User'
+				}
+			});
 		const GuestProject = guest.map(guest => guest.projectId);
 		return res.status(200).json({owner: OwnedProject, guest:GuestProject});
 	} catch (error) {

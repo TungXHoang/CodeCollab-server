@@ -17,9 +17,13 @@ import projectRoutes from "./routes/project"
 import docRoutes from "./routes/doc";
 import guestRoutes from "./routes/guest"
 
+//socket
+
+import { app, server } from "./socket";
+
+
 dotenv.config();
 
-const app = express();
 const port =  8080;
 const DbUrl = process.env.DB_URL!
 
@@ -91,6 +95,6 @@ app.use("/api/projects", projectRoutes);
 app.use("/api/docs", docRoutes); 
 app.use("/api/guests", guestRoutes)
 
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Example app listening port ${port}`)
 })

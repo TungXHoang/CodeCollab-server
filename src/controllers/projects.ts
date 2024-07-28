@@ -46,7 +46,8 @@ export const createProject = async (req: Request, res: Response) => {
 			// add default code.
 			project.code = codeSnippets[project.language]
 		}
-    const newProject = await project.save();
+		const newProject = await project.save();
+		await newProject.populate("owner");
     return res.status(201).json(newProject);
   } catch (err) {
     console.error(err);

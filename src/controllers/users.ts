@@ -2,10 +2,6 @@ import { Request, Response, NextFunction } from "express";
 import { User, IUser } from "../models/users";
 import passport from "passport";
 
-
-import dotenv from "dotenv"
-import { disposeEmitNodes } from "typescript";
-
 // dotenv.config();
 
 // const dbUrl = process.env.DB_URL || "mongodb://localhost:27017/mernStack";

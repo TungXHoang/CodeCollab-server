@@ -20,7 +20,6 @@ import guestRoutes from "./routes/guest"
 import { createServer } from 'http';
 import { WebSocketServer } from 'ws';
 import { MongodbPersistence } from 'y-mongodb-provider';
-import { logger } from './logger';
 import * as Y from 'yjs';
 const yUtils = require("y-websocket/bin/utils");
 import { SocketIOService } from './socket';
@@ -104,22 +103,15 @@ passport.deserializeUser(User.deserializeUser());
 // config YJS 
 const socketServer = createServer(app);
 
-socketServer.on('error', (err) => {
-	logger.info(err);
-});
-socketServer.on('listening', () => {
-	logger.info("Listening")
-});
 
 export const wss = new WebSocketServer({server:socketServer})
 
 wss.on('connection', (ws, req) => {
-  logger.info("wss:connection");
   yUtils.setupWSConnection(ws, req);
 })
 
 //config MongoDB Persistence for YJS
-const mdb = new MongodbPersistence(DbUrl, {
+export const mdb = new MongodbPersistence(DbUrl, {
 	collectionName: 'transactions',
 	flushSize: 100,
 	multipleCollections: true,
@@ -127,32 +119,44 @@ const mdb = new MongodbPersistence(DbUrl, {
 
 
 yUtils.setPersistence({
-	bindState: async (docName: any, ydoc:any) => {
-		// Here you listen to granular document updates and store them in the database
-		// You don't have to do this, but it ensures that you don't lose content when the server crashes
-		// See https://github.com/yjs/yjs#Document-Updates for documentation on how to encode
-		// document updates
-
-		// official default code from: https://github.com/yjs/y-websocket/blob/37887badc1f00326855a29fc6b9197745866c3aa/bin/utils.js#L36
+	bindState: async (docName: any, ydoc: any) => {
 		const persistedYdoc = await mdb.getYDoc(docName);
-		const newUpdates = Y.encodeStateAsUpdate(ydoc);
-		mdb.storeUpdate(docName, newUpdates);
+		// get the state vector so we can just store the diffs between client and server
+		const persistedStateVector = Y.encodeStateVector(persistedYdoc);
+
+		// better just get the differences and save those:
+		const diff = Y.encodeStateAsUpdate(ydoc, persistedStateVector);
+
+		// store the new data in db (if there is any: empty update is an array of 0s)
+		if (diff.reduce((previousValue, currentValue) => previousValue + currentValue, 0) > 0) {
+			mdb.storeUpdate(docName, diff);
+		}
+			
+		// send the persisted data to clients
 		Y.applyUpdate(ydoc, Y.encodeStateAsUpdate(persistedYdoc));
-		ydoc.on('update', async (update:any) => {
+
+		// store updates of the document in db
+		ydoc.on('update', async (update: any) => {
 			mdb.storeUpdate(docName, update);
 		});
+
+		// cleanup some memory
+		persistedYdoc.destroy();
 	},
-	writeState: async (docName:any, ydoc:any) => {
+	writeState: async (docName: any, ydoc: any) => {
 		// This is called when all connections to the document are closed.
-		// In the future, this method might also be called in intervals or after a certain number of updates.
-		return new Promise<void>((resolve) => {
-			// When the returned Promise resolves, the document will be destroyed.
-			// So make sure that the document really has been written to the database.
-			resolve();
-		});
+		// flush document on close
+		await mdb.flushDocument(docName);
 	},
 });
 
+
+yUtils.getPersistence({
+	bindState: async (docName: any, yDoc: any) => {
+		const persistedYdoc = await mdb.getYDoc(docName);
+		console.log("docName from getPerstistence", persistedYdoc);
+	}
+})
 
 // API endpoint
 app.use("/api/users", userRoutes);

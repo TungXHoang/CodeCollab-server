@@ -3,6 +3,8 @@ import { User } from "../models/users";
 import { Request, Response, NextFunction } from "express";
 import { codeSnippets } from "../constants";
 import { MongoError } from 'mongodb';
+import { mdb } from "../index"
+import * as Y from 'yjs'
 
 export const getUserProjects = async (req: Request, res: Response) => {
 	try {
@@ -42,13 +44,19 @@ export const getProject = async (req: Request, res: Response) => {
 export const createProject = async (req: Request, res: Response) => {
   try {
 		let project = new Project(req.body);
-		if (project.language in codeSnippets) {
-			// add default code.
-			project.code = codeSnippets[project.language]
-		}
 		const newProject = await project.save();
 		await newProject.populate("owner");
-    return res.status(201).json(newProject);
+
+		if (project.language in codeSnippets) {
+			//load default code
+			const persistenceDoc = await mdb.getYDoc(newProject._id.toString());
+			const ytext = persistenceDoc.getText("monaco")
+			ytext.insert(0, codeSnippets[project.language]);
+			const newUpdates = Y.encodeStateAsUpdate(ytext.doc!);
+			mdb.storeUpdate(newProject._id.toString(), newUpdates);
+		}
+
+		return res.status(201).json(newProject);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'An error occurred while creating the project.' });
@@ -60,11 +68,13 @@ export const deleteProject = async (req: Request, res: Response) => {
 		const { userId, projectId } = req.body
 		const deleteProject = await Project.findById(projectId);
 		if (userId == deleteProject.owner.toString()) {
-			await deleteProject.deleteOne();
 			// delete all ref
 			await GuestList.deleteMany({projectId: projectId })
-			return res.status(200).json({ message: "Delete Successfully" })
+			await deleteProject.deleteOne();
 			
+			// delete YJS persistence doc
+			await mdb.clearDocument(projectId);
+			return res.status(200).json({ message: "Delete Successfully" })
 		}
 		else {
 			return res.status(404).json({message:"Must be owner in order to delete"})

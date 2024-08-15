@@ -7,6 +7,7 @@ import { mdb } from "../index"
 import * as Y from 'yjs'
 
 export const getUserProjects = async (req: Request, res: Response) => {
+	// get all projects that the owner own or is a guest of
 	try {
 		const userId = req.params.userId;
 		const OwnedProject = await Project.find({ owner: userId }).populate("owner")

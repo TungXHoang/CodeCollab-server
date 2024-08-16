@@ -61,8 +61,13 @@ export const getProject = async (req: Request, res: Response) => {
 export const createProject = async (req: Request, res: Response) => {
   try {
 		let project = new Project(req.body);
-		const newProject = await project.save();
+		let newProject = await project.save();
 		await newProject.populate("owner");
+		
+		newProject = {
+      ...newProject.toObject(),
+      updatedAt: formatDistanceToNow(new Date(newProject.updatedAt), { addSuffix: true })
+    };
 
 		if (project.language in codeSnippets) {
 			//load default code

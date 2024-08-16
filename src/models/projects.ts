@@ -18,9 +18,6 @@ const projectSchema = new mongoose.Schema({
 		type: String,
 		required: true,
 	},
-	code: {
-		type: String,
-	},
 }, { timestamps: true })
 
 

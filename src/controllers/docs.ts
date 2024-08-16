@@ -4,7 +4,13 @@ import { IUser } from "../models/users";
 
 export const updateDoc =  async (req: Request, res: Response)=> {
 	const { doc, projectId } = req.body;
-	const project = await Project.findOneAndUpdate({_id: projectId}, {code: doc}, { new: true });
+	// const project = await Project.findOneAndUpdate({ _id: projectId }, { code: doc }, { new: true });
+	const project = await Project.findByIdAndUpdate(
+		projectId, 
+		{ $set: { updatedAt: new Date() } },
+		{ new: true } // Option to return the updated document
+);
+	console.log("Timestamp updated successfully.");
 	return res.status(201).json(project);
 } 
 

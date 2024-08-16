@@ -4,16 +4,17 @@ import { Request, Response, NextFunction } from "express";
 import { codeSnippets } from "../constants";
 import { MongoError } from 'mongodb';
 import { mdb } from "../index"
+import { formatDistanceToNow } from 'date-fns';
 import * as Y from 'yjs'
 
 export const getUserProjects = async (req: Request, res: Response) => {
 	// get all projects that the owner own or is a guest of
 	try {
 		const userId = req.params.userId;
-		const OwnedProject = await Project.find({ owner: userId }).populate("owner")
+		let OwnedProjects = await Project.find({ owner: userId }).populate("owner")
 
 		//clean up guest project, populate both guest info and project info
-		const guest = await GuestList.
+		let GuestProjects = await GuestList.
 			find({ guestId: userId })
 			.populate({
 				path: 'projectId',
@@ -22,8 +23,23 @@ export const getUserProjects = async (req: Request, res: Response) => {
 					model: 'User'
 				}
 			});
-		const GuestProject = guest.map(guest => guest.projectId);
-		return res.status(200).json({owner: OwnedProject, guest:GuestProject});
+
+		OwnedProjects = OwnedProjects.map(project => {
+			return {
+				...project.toObject(),
+				updatedAt: formatDistanceToNow(new Date(project.updatedAt), { addSuffix: true })
+			};
+		});
+	
+		GuestProjects = GuestProjects.map(guestItem => {
+			const project = guestItem.projectId;
+			return {
+				...project.toObject(),
+				updatedAt: formatDistanceToNow(new Date(project.updatedAt), { addSuffix: true })
+			};
+		});
+
+		return res.status(200).json({owner: OwnedProjects, guest:GuestProjects});
 	} catch (error) {
 		console.error("Error in getUserProjects ", (error as Error).message);
 		res.status(500).json({ error: "Internal server error" });

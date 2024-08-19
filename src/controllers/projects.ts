@@ -136,7 +136,7 @@ export const shareProject = async (req: Request, res: Response) => {
     const guest = new GuestList({ guestId: guestUser._id, projectId: projectId });
     await guest.save();
 
-    return res.status(201).json({ message: 'Shared successfully' });
+    return res.status(201).json({ message: 'Shared successfully', guest: guestUser });
   } catch (err) {
     if ((err as MongoError).code === 11000) {
       return res.status(405).json({ message: 'The user is already a guest of the project' });

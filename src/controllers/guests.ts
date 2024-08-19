@@ -5,7 +5,7 @@ import { MongoError } from 'mongodb';
 export const getGuestList = async (req: Request, res: Response) => {
 	try {
 		const projectId = req.params.projectId
-		const GuestsList = await GuestList.find({ projectId: projectId })
+		const GuestsList = await GuestList.find({ projectId: projectId }).populate("guestId")
 		return res.status(200).json(GuestsList);
 	}
 	catch (err) {

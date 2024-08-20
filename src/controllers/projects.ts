@@ -61,16 +61,13 @@ export const getProject = async (req: Request, res: Response) => {
 export const createProject = async (req: Request, res: Response) => {
   try {
 		let project = new Project(req.body);
+		project.description = `${project.title} program run on CodeCollab`
 		let newProject = await project.save();
 		await newProject.populate("owner");
 		
-		newProject = {
-      ...newProject.toObject(),
-      updatedAt: formatDistanceToNow(new Date(newProject.updatedAt), { addSuffix: true })
-    };
 
 		if (project.language in codeSnippets) {
-			//load default code
+			//load default code via YJS 
 			const persistenceDoc = await mdb.getYDoc(newProject._id.toString());
 			const ytext = persistenceDoc.getText("monaco")
 			ytext.insert(0, codeSnippets[project.language]);

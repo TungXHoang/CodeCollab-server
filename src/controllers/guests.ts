@@ -9,8 +9,20 @@ export const getGuestList = async (req: Request, res: Response) => {
 		return res.status(200).json(GuestsList);
 	}
 	catch (err) {
-		console.error("Error in getProjects ", (err as Error).message);
+		console.error("Error in getGuests ", (err as Error).message);
 		res.status(500).json({ error: "Internal server error" });
 	}
 	
+}
+
+export const deleteGuest = async (req: Request, res: Response) => {
+	const {projectId, guestId} = req.body;
+	try {
+		const guest = await GuestList.findOneAndDelete({ projectId: projectId, guestId: guestId })
+		return res.status(200).json(guest);
+	}
+	catch (err) {
+		console.error("Error in deleteGuest ", (err as Error).message);
+		res.status(500).json({ error: "Internal server error" });
+	}
 }

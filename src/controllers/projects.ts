@@ -65,7 +65,10 @@ export const createProject = async (req: Request, res: Response) => {
 		let newProject = await project.save();
 		await newProject.populate("owner");
 		
-
+		newProject = {
+			...newProject.toObject(),
+			updatedAt: formatDistanceToNow(new Date(project.updatedAt), { addSuffix: true })
+		}
 		if (project.language in codeSnippets) {
 			//load default code via YJS 
 			const persistenceDoc = await mdb.getYDoc(newProject._id.toString());

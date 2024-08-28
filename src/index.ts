@@ -144,6 +144,11 @@ yUtils.setPersistence({
 		// cleanup some memory
 		persistedYdoc.destroy();
 	},
+	writeState: async (docName:any, ydoc:any) => {
+		// return new Promise((resolve) => {
+		// 	// When the returned Promise resolves, the document will be destroyed.
+		// 	resolve();
+	},
 });
 
 // yUtils.getPersistence({

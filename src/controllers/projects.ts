@@ -87,21 +87,29 @@ export const createProject = async (req: Request, res: Response) => {
 
 export const deleteProject = async (req: Request, res: Response) => {
 	try {
-		const { userId, projectId } = req.body
-		const deleteProject = await Project.findById(projectId);
-		if (userId == deleteProject.owner.toString()) {
-			// delete all ref
-			await GuestList.deleteMany({projectId: projectId })
-			await deleteProject.deleteOne();
-			
-			console.log(projectId);
-			// delete YJS persistence doc
-			await mdb.clearDocument(projectId);
-			return res.status(200).json({ message: "Delete Successfully" })
+		const { userId, projectsId } = req.body
+
+		if (!Array.isArray(projectsId) || projectsId.length === 0) {
+			return res.status(400).json({ message: "No projects provided for deletion." });
 		}
-		else {
-			return res.status(404).json({message:"Must be owner in order to delete"})
+
+		for (const projectId of projectsId) {
+			const deleteProject = await Project.findById(projectId)
+			if (!deleteProject) {
+				return res.status(404).json({ message: `Project with ID ${projectId} not found.` });
+			}
+			if (userId == deleteProject.owner.toString()) {
+				await GuestList.deleteMany({ projectId: projectId })
+				await deleteProject.deleteOne();
+				// delete YJS persistence doc
+				await mdb.clearDocument(projectId);
+			}
+			else {
+				return res.status(404).json({message:"Must be owner in order to delete"})
+			}
 		}
+		
+		return res.status(200).json({ message: "Delete Successfully" })
 	}
 	catch (err) {
 		console.error(err);

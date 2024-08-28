@@ -33,7 +33,7 @@ const DbUrl = process.env.DB_URL!
 
 // Connect to database
 mongoose.connect(DbUrl);
-const db = mongoose.connection
+export const db = mongoose.connection
 db.on("error", console.error.bind(console, "connection error"));
 db.once("open", () => {
 	console.log("DB connected");
@@ -115,6 +115,7 @@ export const mdb = new MongodbPersistence(DbUrl, {
 	collectionName: 'transactions',
 	flushSize: 100,
 	multipleCollections: true,
+	
 });
 
 
@@ -143,20 +144,14 @@ yUtils.setPersistence({
 		// cleanup some memory
 		persistedYdoc.destroy();
 	},
-	writeState: async (docName: any, ydoc: any) => {
-		// This is called when all connections to the document are closed.
-		// flush document on close
-		await mdb.flushDocument(docName);
-	},
 });
 
-
-yUtils.getPersistence({
-	bindState: async (docName: any, yDoc: any) => {
-		const persistedYdoc = await mdb.getYDoc(docName);
-		console.log("docName from getPerstistence", persistedYdoc);
-	}
-})
+// yUtils.getPersistence({
+// 	bindState: async (docName: any, yDoc: any) => {
+// 		const persistedYdoc = await mdb.getYDoc(docName);
+// 		console.log("docName from getPerstistence", persistedYdoc);
+// 	}
+// })
 
 // API endpoint
 app.use("/api/users", userRoutes);

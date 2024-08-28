@@ -1,5 +1,5 @@
 import express, { Router } from "express";
-import { getUserProjects, getProject, createProject, deleteProject, shareProject, updateProject } from "../controllers/projects"
+import { deleteCollectionsNotInProject,getUserProjects, getProject, createProject, deleteProject, shareProject, updateProject } from "../controllers/projects"
 
 const router: Router = express.Router();
 
@@ -8,4 +8,6 @@ router.route("/share").post(shareProject);
 router.route("/:userId").get(getUserProjects)
 router.route("/single/:projectId").get(getProject)
 router.route("/update").post(updateProject)
+router.route("/deleteYJS").delete(deleteCollectionsNotInProject);
+
 export = router;

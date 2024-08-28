@@ -3,7 +3,7 @@ import { User } from "../models/users";
 import { Request, Response, NextFunction } from "express";
 import { codeSnippets } from "../constants";
 import { MongoError } from 'mongodb';
-import { mdb } from "../index"
+import { mdb,db } from "../index"
 import { formatDistanceToNow } from 'date-fns';
 import * as Y from 'yjs'
 
@@ -94,6 +94,7 @@ export const deleteProject = async (req: Request, res: Response) => {
 			await GuestList.deleteMany({projectId: projectId })
 			await deleteProject.deleteOne();
 			
+			console.log(projectId);
 			// delete YJS persistence doc
 			await mdb.clearDocument(projectId);
 			return res.status(200).json({ message: "Delete Successfully" })
@@ -168,3 +169,45 @@ export const updateProject = async (req: Request, res: Response) => {
     return res.status(500).json({ message: 'Internal server error.' });
 	}
 }
+
+const validateObjectId = (value:string) => {
+  const regex = new RegExp(/^[a-fA-F0-9]{24}$/);
+
+  if (value !== "" && typeof value === "string") {
+		const result = value.match(regex);
+		if (result){
+			return (result?.length > 0);
+		}
+  }
+  return false 
+};
+
+export const deleteCollectionsNotInProject = async (req: Request, res: Response) => {
+  try {
+    // Connect to your MongoDB database
+    // List all collections
+    const collections = await db.listCollections()
+
+    // Fetch all project _id values
+		const projectIds = await Project.find({}, { _id: 1 });
+    const projectIdSet = new Set(projectIds.map((doc: { _id: { toString: () => any; }; }) => doc._id.toString()));
+
+    // Loop through each collection
+    for (const collection of collections) {
+      const collectionName = collection.name;
+      // Check if the collection name is a valid ObjectId
+      if (validateObjectId(collectionName)) {
+        // If the collection name (valid ObjectId) is NOT found in the project _id set
+        if (!projectIdSet.has(collectionName)) {
+          // Drop the collection
+          await db.collection(collectionName).drop();
+          console.log(`Deleted collection: ${collectionName}`);
+        }
+      }
+		}
+
+		return res.status(200).json({message:"Delete YJS doc successfully"})
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};

@@ -22,8 +22,8 @@ import { WebSocketServer } from 'ws';
 import { MongodbPersistence } from 'y-mongodb-provider';
 import * as Y from 'yjs';
 const yUtils = require("y-websocket/bin/utils");
-import { SocketIOService } from './socket';
-import cors from "cors";
+// import { SocketIOService } from './socket';
+// import cors from "cors";
 
 dotenv.config();
 

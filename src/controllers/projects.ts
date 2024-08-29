@@ -6,6 +6,7 @@ import { MongoError } from 'mongodb';
 import { mdb,db } from "../index"
 import { formatDistanceToNow } from 'date-fns';
 import * as Y from 'yjs'
+const yUtils = require("y-websocket/bin/utils");
 
 export const getUserProjects = async (req: Request, res: Response) => {
 	// get all projects that the owner own or is a guest of
@@ -219,3 +220,37 @@ export const deleteCollectionsNotInProject = async (req: Request, res: Response)
     console.error('Error:', error);
   }
 };
+
+
+export const saveProject = async (req: Request, res: Response) => {
+	try {
+		const { docName } = req.body
+		const ydoc = new Y.Doc()
+		const persistedYdoc = await mdb.getYDoc(docName);
+		// get the state vector so we can just store the diffs between client and server
+		const persistedStateVector = Y.encodeStateVector(persistedYdoc);
+		const diff = Y.encodeStateAsUpdate(ydoc, persistedStateVector);
+
+		// store the new data in db (if there is any: empty update is an array of 0s)
+		if (diff.reduce((previousValue, currentValue) => previousValue + currentValue, 0) > 0)
+			mdb.storeUpdate(docName, diff);
+
+		// send the persisted data to clients
+		Y.applyUpdate(ydoc, Y.encodeStateAsUpdate(persistedYdoc));
+
+		// store updates of the document in db
+		ydoc.on('update', async (update) => {
+			mdb.storeUpdate(docName, update);
+		});
+
+		// cleanup some memory
+		persistedYdoc.destroy();
+
+		return res.status(200).json({message:"Project updated successfully"})
+		}
+	catch (err) {
+		console.log(err);
+		return res.status(500).json({ message: 'Internal server error.' });
+	}
+}
+	

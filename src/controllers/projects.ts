@@ -9,16 +9,16 @@ import * as Y from 'yjs'
 const yUtils = require("y-websocket/bin/utils");
 
 export const getUserProjects = async (req: Request, res: Response) => {
-	// get all projects that the owner own or is a guest of
+	// get all projects that the user own or is a guest of
 	try {
 		const userId = req.params.userId;
 		let OwnedProjects = await Project.find({ owner: userId }).populate("owner")
 
 		//clean up guest project, populate both guest info and project info
 		let GuestProjects = await GuestList.
-			find({ guestId: userId })
+			find({ guest: userId })
 			.populate({
-				path: 'projectId',
+				path: 'project',
 				populate: {
 					path: 'owner',
 					model: 'User'
@@ -100,7 +100,7 @@ export const deleteProject = async (req: Request, res: Response) => {
 				return res.status(404).json({ message: `Project with ID ${projectId} not found.` });
 			}
 			if (userId == deleteProject.owner.toString()) {
-				await GuestList.deleteMany({ projectId: projectId })
+				await GuestList.deleteMany({ project: projectId })
 				await deleteProject.deleteOne();
 				// delete YJS persistence doc
 				await mdb.clearDocument(projectId);
@@ -143,7 +143,7 @@ export const shareProject = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'The user does not exist!' });
     }
 
-    const guest = new GuestList({ guestId: guestUser._id, projectId: projectId });
+    const guest = new GuestList({ guest: guestUser._id, project: projectId });
     await guest.save();
 
     return res.status(201).json({ message: 'Shared successfully', guest: guestUser });
@@ -179,47 +179,47 @@ export const updateProject = async (req: Request, res: Response) => {
 	}
 }
 
-const validateObjectId = (value:string) => {
-  const regex = new RegExp(/^[a-fA-F0-9]{24}$/);
+// const validateObjectId = (value:string) => {
+//   const regex = new RegExp(/^[a-fA-F0-9]{24}$/);
 
-  if (value !== "" && typeof value === "string") {
-		const result = value.match(regex);
-		if (result){
-			return (result?.length > 0);
-		}
-  }
-  return false 
-};
+//   if (value !== "" && typeof value === "string") {
+// 		const result = value.match(regex);
+// 		if (result){
+// 			return (result?.length > 0);
+// 		}
+//   }
+//   return false 
+// };
 
-export const deleteCollectionsNotInProject = async (req: Request, res: Response) => {
-  try {
-    // Connect to your MongoDB database
-    // List all collections
-    const collections = await db.listCollections()
+// export const deleteCollectionsNotInProject = async (req: Request, res: Response) => {
+//   try {
+//     // Connect to your MongoDB database
+//     // List all collections
+//     const collections = await db.listCollections()
 
-    // Fetch all project _id values
-		const projectIds = await Project.find({}, { _id: 1 });
-    const projectIdSet = new Set(projectIds.map((doc: { _id: { toString: () => any; }; }) => doc._id.toString()));
+//     // Fetch all project _id values
+// 		const projectIds = await Project.find({}, { _id: 1 });
+//     const projectIdSet = new Set(projectIds.map((doc: { _id: { toString: () => any; }; }) => doc._id.toString()));
 
-    // Loop through each collection
-    for (const collection of collections) {
-      const collectionName = collection.name;
-      // Check if the collection name is a valid ObjectId
-      if (validateObjectId(collectionName)) {
-        // If the collection name (valid ObjectId) is NOT found in the project _id set
-        if (!projectIdSet.has(collectionName)) {
-          // Drop the collection
-          await db.collection(collectionName).drop();
-          console.log(`Deleted collection: ${collectionName}`);
-        }
-      }
-		}
+//     // Loop through each collection
+//     for (const collection of collections) {
+//       const collectionName = collection.name;
+//       // Check if the collection name is a valid ObjectId
+//       if (validateObjectId(collectionName)) {
+//         // If the collection name (valid ObjectId) is NOT found in the project _id set
+//         if (!projectIdSet.has(collectionName)) {
+//           // Drop the collection
+//           await db.collection(collectionName).drop();
+//           console.log(`Deleted collection: ${collectionName}`);
+//         }
+//       }
+// 		}
 
-		return res.status(200).json({message:"Delete YJS doc successfully"})
-  } catch (error) {
-    console.error('Error:', error);
-  }
-};
+// 		return res.status(200).json({message:"Delete YJS doc successfully"})
+//   } catch (error) {
+//     console.error('Error:', error);
+//   }
+// };
 
 
 export const saveProject = async (req: Request, res: Response) => {

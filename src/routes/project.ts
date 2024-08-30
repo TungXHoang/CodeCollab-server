@@ -9,6 +9,5 @@ router.route("/:userId").get(getUserProjects)
 router.route("/single/:projectId").get(getProject)
 router.route("/update").post(updateProject)
 router.route("/save").post(saveProject)
-// router.route("/deleteYJS").delete(deleteCollectionsNotInProject);
 
 export = router;

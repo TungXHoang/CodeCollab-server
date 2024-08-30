@@ -26,12 +26,12 @@ const projectSchema = new mongoose.Schema({
 
 
 const guestListSchema = new mongoose.Schema({
-	projectId: {
+	project: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: "Project",
 		required: true,
 	},
-	guestId: {
+	guest: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: "User",
 		required: true,

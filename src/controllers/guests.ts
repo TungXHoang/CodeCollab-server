@@ -5,7 +5,7 @@ import { MongoError } from 'mongodb';
 export const getGuestList = async (req: Request, res: Response) => {
 	try {
 		const projectId = req.params.projectId
-		const GuestsList = await GuestList.find({ projectId: projectId }).populate("guestId")
+		const GuestsList = await GuestList.find({ project: projectId }).populate("guest")
 		return res.status(200).json(GuestsList);
 	}
 	catch (err) {
@@ -18,7 +18,7 @@ export const getGuestList = async (req: Request, res: Response) => {
 export const deleteGuest = async (req: Request, res: Response) => {
 	const {projectId, guestId} = req.body;
 	try {
-		const guest = await GuestList.findOneAndDelete({ projectId: projectId, guestId: guestId })
+		const guest = await GuestList.findOneAndDelete({ project: projectId, guest: guestId })
 		return res.status(200).json(guest);
 	}
 	catch (err) {

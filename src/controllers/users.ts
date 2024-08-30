@@ -116,3 +116,15 @@ export const loginUser = (
 			}
 	})(req, res, next);
 };
+
+export const getAllUser = async (req: Request, res: Response) => {
+	try {
+		const allUsers = await User.find({});
+		return res.status(200).json(allUsers);
+	}
+	catch (err) {
+		console.log(err)
+		return res.status(500).json({ msg: "Internal server erorr" });
+	}
+	
+}

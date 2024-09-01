@@ -33,7 +33,7 @@ export const getUserProjects = async (req: Request, res: Response) => {
 		});
 	
 		GuestProjects = GuestProjects.map(guestItem => {
-			const project = guestItem.projectId;
+			const project = guestItem.project;
 			return {
 				...project.toObject(),
 				updatedAt: formatDistanceToNow(new Date(project.updatedAt), { addSuffix: true })

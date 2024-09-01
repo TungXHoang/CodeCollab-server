@@ -19,6 +19,7 @@ export const deleteGuest = async (req: Request, res: Response) => {
 	const {projectId, guestId} = req.body;
 	try {
 		const guest = await GuestList.findOneAndDelete({ project: projectId, guest: guestId })
+		console.log(guest);
 		return res.status(200).json(guest);
 	}
 	catch (err) {

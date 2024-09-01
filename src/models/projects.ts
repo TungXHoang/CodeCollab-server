@@ -37,9 +37,10 @@ const guestListSchema = new mongoose.Schema({
 		required: true,
 	},
 })
+
 	
 // virtual 
-// guestListSchema.index({ projectId: 1, guestId: 1 }, { unique: true});
+
 // guestListSchema.virtual('project',{
 // 	ref: 'Project',
 // 	localField: 'projectId',
@@ -52,5 +53,6 @@ const guestListSchema = new mongoose.Schema({
 
 const Project = mongoose.model("Project", projectSchema);
 const GuestList = mongoose.model("GuestList", guestListSchema);
+guestListSchema.index({ "project": 1, "guest": 1 }, { unique: true });
 
 export {Project, GuestList};

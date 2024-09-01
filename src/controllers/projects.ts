@@ -114,7 +114,7 @@ export const deleteProject = async (req: Request, res: Response) => {
 	}
 	catch (err) {
 		console.error(err);
-		return res.status(500).json({ error: 'An error occurred while deleting the project.' });
+		return res.status(500).json({ message: 'An error occurred while deleting the project.' });
 	}
 }
 
@@ -147,11 +147,10 @@ export const shareProject = async (req: Request, res: Response) => {
     await guest.save();
 
     return res.status(201).json({ message: 'Shared successfully', guest: guestUser });
-  } catch (err) {
+	} catch (err) {
     if ((err as MongoError).code === 11000) {
       return res.status(405).json({ message: 'The user is already a guest of the project' });
     }
-
     console.error('Error sharing project:', err);
     return res.status(500).json({ message: 'Internal server error.' });
   }

@@ -129,7 +129,7 @@ export const shareProject = async (req: Request, res: Response) => {
 
 		// Only owner can share 
     if (shareProject.owner._id.toString() !== ownerId) {
-      return res.status(401).json({ message: 'You are not authorized to share' });
+      return res.status(401).json({ message: 'You are not authorized to share'});
 		}
 		
 		// Cannot add yourself to the guest lists
@@ -140,16 +140,16 @@ export const shareProject = async (req: Request, res: Response) => {
 		// User does not exist
     const guestUser = await User.findOne({ email: guestEmail });
     if (!guestUser) {
-      return res.status(404).json({ message: 'The user does not exist!' });
+      return res.status(404).json({ message: 'User not found!' });
     }
 
     const guest = new GuestList({ guest: guestUser._id, project: projectId });
     await guest.save();
 
-    return res.status(201).json({ message: 'Shared successfully', guest: guestUser });
+    return res.status(201).json({ message: 'Add guest successfully', guest: guestUser });
 	} catch (err) {
     if ((err as MongoError).code === 11000) {
-      return res.status(405).json({ message: 'The user is already a guest of the project' });
+      return res.status(405).json({ message: 'The user is already a guest!' });
     }
     console.error('Error sharing project:', err);
     return res.status(500).json({ message: 'Internal server error.' });

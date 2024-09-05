@@ -124,30 +124,23 @@ yUtils.setPersistence({
 		const persistedYdoc = await mdb.getYDoc(docName);
 		// get the state vector so we can just store the diffs between client and server
 		const persistedStateVector = Y.encodeStateVector(persistedYdoc);
-
-		// better just get the differences and save those:
 		const diff = Y.encodeStateAsUpdate(ydoc, persistedStateVector);
-
 		// store the new data in db (if there is any: empty update is an array of 0s)
-		if (diff.reduce((previousValue, currentValue) => previousValue + currentValue, 0) > 0) {
+		if (diff.reduce((previousValue, currentValue) => previousValue + currentValue, 0) > 0)
 			mdb.storeUpdate(docName, diff);
-		}
-			
+
 		// send the persisted data to clients
 		Y.applyUpdate(ydoc, Y.encodeStateAsUpdate(persistedYdoc));
 
 		// store updates of the document in db
-		ydoc.on('update', async (update: any) => {
+		ydoc.on('update', async (update:any) => {
 			mdb.storeUpdate(docName, update);
 		});
 
-		// cleanup some memory
+		// cleanup memory
 		persistedYdoc.destroy();
 	},
 	writeState: async (docName:any, ydoc:any) => {
-		// return new Promise((resolve) => {
-		// 	// When the returned Promise resolves, the document will be destroyed.
-		// 	resolve();
 	},
 });
 

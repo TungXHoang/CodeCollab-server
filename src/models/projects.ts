@@ -21,7 +21,7 @@ const projectSchema = new mongoose.Schema({
 	description: {
 		type: String,
 		required: true,
-	}
+	},
 }, { timestamps: true })
 
 
@@ -39,18 +39,6 @@ const guestListSchema = new mongoose.Schema({
 })
 
 	
-// virtual 
-
-// guestListSchema.virtual('project',{
-// 	ref: 'Project',
-// 	localField: 'projectId',
-// 	foreignField: '_id',
-// 	justOne: true
-// });
-
-// guestListSchema.set('toObject', { virtuals: true });
-// guestListSchema.set('toJSON', { virtuals: true });
-
 const Project = mongoose.model("Project", projectSchema);
 const GuestList = mongoose.model("GuestList", guestListSchema);
 guestListSchema.index({ "project": 1, "guest": 1 }, { unique: true });

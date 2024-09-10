@@ -1,24 +1,21 @@
 import { Request, Response, NextFunction } from "express";
 import { User, IUser } from "../models/users";
 import passport from "passport";
+import dotenv from "dotenv"
+dotenv.config();
 
-// dotenv.config();
-
-// const dbUrl = process.env.DB_URL || "mongodb://localhost:27017/mernStack";
-
-
-// interface ExtendedFile {
-//     location: string;
-//     key: string; // Make 'key' optional
-// }
+interface ExtendedFile {
+	location: string;
+	key: string;
+}
 
 interface AuthenticatedRequest extends Request { //for TS
 	// isAuthenticated(): boolean;
 	login(user: IUser, done: (err: any) => void): void;
 	login(
-			user: IUser,
-			options: passport.AuthenticateOptions,
-			done: (err: any) => void
+		user: IUser,
+		options: passport.AuthenticateOptions,
+		done: (err: any) => void
 	): void;
 	logout(callback: (err: any) => void): void;
 	logout(options: passport.LogOutOptions, done: (err: any) => void): void;
@@ -29,19 +26,18 @@ export const authenticateUser = async (
 	req: AuthenticatedRequest,
 	res: Response
 ) => {
-    try {
-			if (req.user) { // req.user create by pasportJS 
-				const userObj = req.user.toObject();
-				// delete userObj.__v;
-				return res.json({
-					...userObj,
-					auth: true
-				});
-			}
-      return res.json({ auth: false, _id: "", lastName: "", firstName : "" });
-    } catch (e) {
-			console.log(e);
-    }
+	try {
+		if (req.user) { // req.user create by pasportJS 
+			const userObj = req.user.toObject();
+			return res.json({
+				...userObj,
+				auth: true
+			});
+		}
+		return res.json({ auth: false, _id: "", lastName: "", firstName : "", email:"" });
+	} catch (e) {
+		console.log(e);
+	}
 };
 
 export const logoutUser = (
@@ -67,13 +63,20 @@ export const registerUser = async (
 	req: AuthenticatedRequest, res: Response
 ) => { 
   try {
-    const { email, lastName, firstName, password } = req.body;
-    const user = new User({email, lastName, firstName });
+		const { email, lastName, firstName, password } = req.body;
+		// const uploadedFile = req.file as unknown as ExtendedFile;
+		const avatar =
+			{ //default image
+				url: process.env.AWS_DEFAULT_URL,
+				filename: process.env.AWS_DEFAULT_FILENAME,
+			};
+		const thumbnailUrl = process.env.ImageKit_Endpoint! + avatar.filename + `?tr=w-${100},h-${100},f-png,lo-true` || "";
+		const user = new User({ email, lastName, firstName, avatar, thumbnailUrl});
     await User.register(user, password, function (err, registeredUser) {
 			if (err) {
 				return res.send({err });
 			} else {
-					// Registration successful, proceed with login
+					// proceed with login
 				req.login(registeredUser, (err) => {
 					if (err) {
 						return res.send(err);
@@ -102,17 +105,16 @@ export const loginUser = (
 					msg: "Username or Password is incorrect",
 				});
 			else {
-				req.login(user, (err) => {
+				req.login(user, (err) => {			
 					if (err) throw err;
 					return res.status(200).json({
 						auth: req.isAuthenticated(),
 						msg: "login success",
 					});
-					// console.log("login sucess");
 				});
 			}
 			} catch (err) {
-					console.log(err);
+				console.log(err);
 			}
 	})(req, res, next);
 };

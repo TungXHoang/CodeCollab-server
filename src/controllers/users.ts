@@ -1,5 +1,7 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction,RequestHandler } from "express";
+
 import { User, IUser } from "../models/users";
+import { MongoError } from 'mongodb';
 import passport from "passport";
 import dotenv from "dotenv"
 dotenv.config();
@@ -20,7 +22,9 @@ interface AuthenticatedRequest extends Request { //for TS
 	logout(callback: (err: any) => void): void;
 	logout(options: passport.LogOutOptions, done: (err: any) => void): void;
 	user?: IUser;
+	
 }
+
 
 export const authenticateUser = async (
 	req: AuthenticatedRequest,
@@ -34,17 +38,14 @@ export const authenticateUser = async (
 				auth: true
 			});
 		}
+		console.log("user has been change")
 		return res.json({ auth: false, _id: "", lastName: "", firstName : "", email:"" });
 	} catch (e) {
 		console.log(e);
 	}
 };
 
-export const logoutUser = (
-	req: Request,
-	res: Response,
-	next: NextFunction
-) => {
+export const logoutUser = ( req: Request, res: Response, next: NextFunction) => {
   req.logout(function (err) {
     req.session.destroy(err => {
       if (err) {
@@ -129,4 +130,46 @@ export const getAllUser = async (req: Request, res: Response) => {
 		return res.status(500).json({ msg: "Internal server erorr" });
 	}
 	
+}
+
+export const getSingleUser = async (req: Request, res: Response) => {
+	try {
+		const userEmail = req.params.userEmail;
+		const user = await User.findOne({ email: new RegExp(`^${userEmail}@`, 'i') });
+		if (!user) {
+			return res.status(404).json({message:"User not found"})
+		}
+		return res.status(200).json(user)
+	}
+	catch (err) {
+		console.log(err);
+		return res.status(500).json({ msg: "Internal server erorr" });
+	}
+}
+
+export const updateUserInfo: RequestHandler = async (req: Request, res: Response) => {
+	try {
+		const { requestId, changeId, newEmail, newFirstName, newLastName } = req.body;
+		if (requestId !== changeId){
+			return res.status(404).json({ message: "Unauthorized action" });
+		}
+
+		const updatedUser =  await User.findOneAndUpdate(
+			{ _id: changeId },
+			{ email: newEmail, firstName: newFirstName, lastName: newLastName });
+		
+		if (!updatedUser) {
+			return res.status(404).json({ message: "User not found" });
+		}
+
+		req.session.passport.user = newEmail; //update session to prevent auto logouts
+		return res.status(201).json({updatedUser:updatedUser, message:"Updated successfully"})
+
+
+	} catch(err){
+		if ((err as MongoError).code === 11000) {
+      return res.status(405).json({ message:'A user with the given email is already registered'});
+    }
+		return res.status(500).json({ msg: "Internal server erorr" });
+	}
 }

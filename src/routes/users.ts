@@ -1,7 +1,7 @@
 
 import express, { Router } from "express";
 import { RequestHandler } from "express-serve-static-core";
-import { getAllUser, registerUser, loginUser, logoutUser, authenticateUser } from "../controllers/users";
+import { getAllUser, getSingleUser, registerUser, loginUser, logoutUser, authenticateUser,updateUserInfo } from "../controllers/users";
 // import { uploadImage } from "../aws-s3"
 
 
@@ -20,5 +20,6 @@ router.route("/login").post(loginUser as RequestHandler);
 router.route("/logout").post(logoutUser as RequestHandler);
 router.route("/auth").post(authenticateUser as RequestHandler);
 router.route("/getall").get(getAllUser);
-
+router.route("/single/:userEmail").get(getSingleUser)
+router.route("/update").post(updateUserInfo);
 export = router;

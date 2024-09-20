@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction,RequestHandler } from "express";
 
 import { User, IUser } from "../models/users";
+import { deleteS3Object } from "../aws-s3";
+
 import { MongoError } from 'mongodb';
 import passport from "passport";
 import dotenv from "dotenv"
@@ -26,10 +28,7 @@ interface AuthenticatedRequest extends Request { //for TS
 }
 
 
-export const authenticateUser = async (
-	req: AuthenticatedRequest,
-	res: Response
-) => {
+export const authenticateUser = async ( req: AuthenticatedRequest, res: Response) => {
 	try {
 		if (req.user) { // req.user create by pasportJS 
 			const userObj = req.user.toObject();
@@ -37,8 +36,7 @@ export const authenticateUser = async (
 				...userObj,
 				auth: true
 			});
-		}
-		console.log("user has been change")
+		};
 		return res.json({ auth: false, _id: "", lastName: "", firstName : "", email:"" });
 	} catch (e) {
 		console.log(e);
@@ -60,9 +58,7 @@ export const logoutUser = ( req: Request, res: Response, next: NextFunction) => 
 };
 
 
-export const registerUser = async ( 
-	req: AuthenticatedRequest, res: Response
-) => { 
+export const registerUser = async ( req: AuthenticatedRequest, res: Response) => { 
   try {
 		const { email, lastName, firstName, password } = req.body;
 		// const uploadedFile = req.file as unknown as ExtendedFile;
@@ -71,7 +67,7 @@ export const registerUser = async (
 				url: process.env.AWS_DEFAULT_URL,
 				filename: process.env.AWS_DEFAULT_FILENAME,
 			};
-		const thumbnailUrl = process.env.ImageKit_Endpoint! + avatar.filename + `?tr=w-${100},h-${100},f-png,lo-true` || "";
+		const thumbnailUrl = process.env.ImageKit_Endpoint! + avatar.filename + `?tr=w-${200},h-${200},f-png,lo-true` || "";
 		const user = new User({ email, lastName, firstName, avatar, thumbnailUrl});
     await User.register(user, password, function (err, registeredUser) {
 			if (err) {
@@ -94,9 +90,7 @@ export const registerUser = async (
 	}
 }
 
-export const loginUser = (
-    req: Request, res: Response, next: NextFunction
-) => {
+export const loginUser = ( req: Request, res: Response, next: NextFunction) => {
 	passport.authenticate("local", (_err: Error, user: IUser) => {
 		try {
 			if (!user)
@@ -154,9 +148,10 @@ export const updateUserInfo: RequestHandler = async (req: Request, res: Response
 			return res.status(404).json({ message: "Unauthorized action" });
 		}
 
-		const updatedUser =  await User.findOneAndUpdate(
+		const updatedUser = await User.findOneAndUpdate(
 			{ _id: changeId },
-			{ email: newEmail, firstName: newFirstName, lastName: newLastName });
+			{ email: newEmail, firstName: newFirstName, lastName: newLastName },
+			{ new: true });
 		
 		if (!updatedUser) {
 			return res.status(404).json({ message: "User not found" });
@@ -172,4 +167,35 @@ export const updateUserInfo: RequestHandler = async (req: Request, res: Response
     }
 		return res.status(500).json({ msg: "Internal server erorr" });
 	}
+}
+
+export const updateUserAvatar = async (req: AuthenticatedRequest, res: Response) => {
+	try {
+		const { requestId, changeId, currentFileName } = req.body;
+		if (requestId !== changeId) {
+			return res.status(404).json({ message: "Unauthorized action" });
+		}
+		
+		if (currentFileName !== process.env.AWS_DEFAULT_FILENAME) {
+			await deleteS3Object(currentFileName);
+		}
+		const uploadedFile = req.file as unknown as ExtendedFile;
+		const newAvatar = {url: uploadedFile.location, filename: uploadedFile.key};
+		const thumbnailUrl = process.env.ImageKit_Endpoint! + newAvatar.filename + `?tr=w-${200},h-${200},f-png,lo-true`;
+		const updatedUser = await User.findOneAndUpdate(
+			{ _id: changeId },
+			{ avatar: newAvatar, thumbnailUrl: thumbnailUrl},
+			{ new: true });
+		
+		if (!updatedUser) {
+			return res.status(404).json({ message: "User not found" });
+		}
+		return res.status(201).json({updatedUser:updatedUser, message:"Updated successfully"})
+
+
+	} catch (err) {
+		console.log(err);
+		return res.status(500).json({ msg: "Internal server erorr" });
+	}
+	
 }

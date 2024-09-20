@@ -1,5 +1,5 @@
 import multer from "multer";
-import { S3Client } from "@aws-sdk/client-s3";
+import { S3Client,DeleteObjectsCommand } from "@aws-sdk/client-s3";
 import multerS3 from "multer-s3";
 
 import dotenv from "dotenv"
@@ -15,6 +15,29 @@ const s3 = new S3Client({
 	region: process.env.AWS_BUCKET_REGION,
 });
 
+// s3.deleteObject({ Bucket: 'bucket-name', Key: 'image.jpg' }, (err, data) => {
+// 	console.error(err);
+// 	console.log(data);
+// });
+
+
+
+
+const deleteS3Object = async (filename:string) => {
+	const input = {
+		"Bucket": process.env.AWS_BUCKET_NAME,
+		"Delete": {
+			"Objects": [
+				{
+					"Key": `${filename}`
+				},
+			],
+			"Quiet": false
+		}
+	};
+	const command = new DeleteObjectsCommand(input);
+	await s3.send(command);
+}
 const s3Storage = multerS3({
 	s3, // s3 instance
 	bucket: process.env.AWS_BUCKET_NAME ?? "",
@@ -46,4 +69,4 @@ const uploadImage = multer({
 	},
 });
 
-export { uploadImage, s3 };
+export { uploadImage, deleteS3Object, s3 };

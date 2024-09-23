@@ -15,12 +15,6 @@ const s3 = new S3Client({
 	region: process.env.AWS_BUCKET_REGION,
 });
 
-// s3.deleteObject({ Bucket: 'bucket-name', Key: 'image.jpg' }, (err, data) => {
-// 	console.error(err);
-// 	console.log(data);
-// });
-
-
 
 
 const deleteS3Object = async (filename:string) => {

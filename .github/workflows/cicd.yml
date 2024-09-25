@@ -42,23 +42,23 @@ jobs:
     runs-on: self-hosted
     steps:
       - name: Pull Redis Image
-        run: docker pull redis:alpine
+        run: sudo docker pull redis:alpine
 
       - name: Remove existing Redis container (if exists)
         run: |
           if [ $(docker ps -aq -f name=redis-container) ]; then
-            docker rm -f redis-container
+            sudo docker rm -f redis-container
           fi
 
       - name: Run Redis container
-        run: docker run -d --name redis-container redis:alpine
+        run: sudo docker run -d --name redis-container redis:alpine
 
       - name: Remove existing Server container (if exists)
         run: |
           if [ $(docker ps -aq -f name=server-container) ]; then
-            docker rm -f server-container
+            sudo docker rm -f server-container
           fi
 
       - name: Run Server Container
         run: |
-          docker run -d --name server-container --link redis-container:redis -e REDIS_URL=redis://redis:6379/0 -p 3000:3000 hoangtung2354/codecollab-server:latest
+          sudo docker run -d --name server-container --link redis-container:redis -e REDIS_URL=redis://redis:6379/0 -p 3000:3000 hoangtung2354/codecollab-server:latest

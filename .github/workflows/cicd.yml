@@ -49,8 +49,8 @@ jobs:
 
       - name: Run Redis Container
         run: |
-          docker run -d --name redis-container -p 6379:6379 redis:alpine
+          sudo docker run -d --name redis-container -p 6379:6379 redis:alpine
 
       - name: Run Server Container
         run: |
-          docker run -d --name server-container --link redis-container:redis -e REDIS_URL=redis://redis:6379/0 -p 3000:3000 hoangtung2354/codecollab-server:latest
+          sudo docker run -d --name server-container --link redis-container:redis -e REDIS_URL=redis://redis:6379/0 -p 3000:3000 hoangtung2354/codecollab-server:latest

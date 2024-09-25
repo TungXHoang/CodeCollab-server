@@ -44,20 +44,11 @@ jobs:
       - name: Pull Redis Image
         run: sudo docker pull redis:alpine
 
-      - name: Remove existing Redis container (if exists)
-        run: |
-          if [ $(docker ps -aq -f name=redis-container) ]; then
-            sudo docker rm -f redis-container
-          fi
+      - name: Remove all containers
+        run: sudo docker rm -f $(sudo docker ps -a -q)
 
       - name: Run Redis container
         run: sudo docker run -d --name redis-container redis:alpine
-
-      - name: Remove existing Server container (if exists)
-        run: |
-          if [ $(docker ps -aq -f name=server-container) ]; then
-            sudo docker rm -f server-container
-          fi
 
       - name: Run Server Container
         run: |

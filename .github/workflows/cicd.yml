@@ -44,8 +44,11 @@ jobs:
       - name: Pull Redis Image
         run: sudo docker pull redis:alpine
 
-      - name: Remove all containers
-        run: sudo docker rm -f $(sudo docker ps -a -q)
+      - name: Remove all existing containers (if any)
+        run: |
+          if [ "$(docker ps -aq)" ]; then
+              sudo docker rm -f $(docker ps -aq)
+          fi
 
       - name: Run Redis container
         run: sudo docker run -d --name redis-container redis:alpine

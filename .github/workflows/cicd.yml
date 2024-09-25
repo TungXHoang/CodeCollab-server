@@ -1,0 +1,58 @@
+name: Deploy CodeCollab Server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+      - name: Create .env file
+        run: |
+          touch .env
+          echo "DB_URL=${{ secrets.DB_URL }}" >> .env
+          echo "SECRET=${{ secrets.SECRET }}" >> .env
+          echo "RAPID_API_URL=${{ secrets.RAPID_API_URL }}" >> .env
+          echo "RAPID_API_HOST=${{ secrets.RAPID_API_HOST }}" >> .env
+          echo "RAPID_API_KEY=${{ secrets.RAPID_API_KEY }}" >> .env
+          echo "VITE_SOCKET_PORT=${{ secrets.VITE_SOCKET_PORT }}" >> .env
+          echo "VITE_BACKEND_PORT=${{ secrets.VITE_BACKEND_PORT }}" >> .env
+          echo "AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }}" >> .env
+          echo "AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }}" >> .env
+          echo "AWS_BUCKET_NAME=${{ secrets.AWS_BUCKET_NAME }}" >> .env
+          echo "AWS_BUCKET_REGION=${{ secrets.AWS_BUCKET_REGION }}" >> .env
+          echo "AWS_DEFAULT_URL=${{ secrets.AWS_DEFAULT_URL }}" >> .env
+          echo "AWS_DEFAULT_FILENAME=${{ secrets.AWS_DEFAULT_FILENAME }}" >> .env
+          echo "ImageKit_Endpoint=${{ secrets.ImageKit_Endpoint }}" >> .env
+          cat .env
+
+      - name: Login to Docker Hub
+        run: docker login -u ${{secrets.DOCKER_USERNAME}} -p ${{secrets.DOCKER_PASSWORD}}
+
+      - name: Build Docker Image
+        run: docker build -t hoangtung2354/codecollab-server .
+
+      - name: Publish Image to Docker Hub
+        run: docker push hoangtung2354/codecollab-server:latest
+
+  deploy:
+    needs: build
+    runs-on: self-hosted
+    steps:
+      - name: Pull Redis Image
+        run: docker pull redis:alpine
+
+      - name: Pull Server Image from Docker Hub
+        run: docker pull hoangtung2354/codecollab-server:latest
+
+      - name: Run Redis Container
+        run: |
+          docker run -d --name redis-container -p 6379:6379 redis:alpine
+
+      - name: Run Server Container
+        run: |
+          docker run -d --name server-container --link redis-container:redis -e REDIS_URL=redis://redis:6379/0 -p 3000:3000 hoangtung2354/codecollab-server:latest

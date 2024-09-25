@@ -67,7 +67,7 @@ redisClient.on('connect', function () {
 const sessionConfig: session.SessionOptions = {
     store: new RedisStore({ client: redisClient }),
     // name: process.env.SESS_COOKIE,
-    secret: process.env.SECRET as string ,
+    secret: process.env.SESSION_SECRET as string ,
     resave: false,
     saveUninitialized: false,
     cookie: {

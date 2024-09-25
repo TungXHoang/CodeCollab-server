@@ -22,12 +22,11 @@ import { WebSocketServer } from 'ws';
 import { MongodbPersistence } from 'y-mongodb-provider';
 import * as Y from 'yjs';
 const yUtils = require("y-websocket/bin/utils");
-// import { SocketIOService } from './socket';
 // import cors from "cors";
 
 dotenv.config();
 
-const backendPort = process.env.VITE_BACKEND_PORT || 3001;
+const backendPort = process.env.VITE_BACKEND_PORT || 3000;
 const socketPort = process.env.VITE_SOCKET_PORT || 3000;
 const DbUrl = process.env.DB_URL!
 
@@ -92,17 +91,8 @@ passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
 
-// export const socketIOService = new SocketIOService(socketServer);
-
-// app.use((req: Request, res: Response, next: NextFunction) => {
-//   res.locals.currentUser = req.user; //
-//   next();
-// });34
-
-
-// config YJS 
+// config YJS and web server 
 const socketServer = createServer(app);
-
 
 export const wss = new WebSocketServer({server:socketServer})
 
@@ -160,9 +150,9 @@ app.use("/api/guests", guestRoutes)
 
 
 socketServer.listen(socketPort, () => {
-	console.log(`Socket server running at: \x1b[36mhttp://localhost:\x1b[1m${socketPort}/\x1b[0m`);
+	console.log(`Backend running at: \x1b[36mhttp://localhost:\x1b[1m${socketPort}/\x1b[0m`);
 });
 
-app.listen(backendPort, () => {
-	console.log(`Backend running at: \x1b[36mhttp://localhost:\x1b[1m${backendPort}/\x1b[0m`);
-});
+// app.listen(backendPort, () => {
+// 	console.log(`Backend running at: \x1b[36mhttp://localhost:\x1b[1m${backendPort}/\x1b[0m`);
+// });

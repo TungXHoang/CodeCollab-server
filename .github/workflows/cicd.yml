@@ -45,7 +45,7 @@ jobs:
         run: sudo docker pull redis:alpine
 
       - name: Pull image from docker hub
-        run: docker pull hoangtung2354/codecollab-server:latest
+        run: sudo docker pull hoangtung2354/codecollab-server:latest
 
       - name: Remove all existing containers (if any)
         run: |

@@ -32,6 +32,11 @@ jobs:
     steps:
       - name: Pull Docker Image from Hub
         run: docker pull hoangtung2354/codecollab-server:latest
+      - name: Remove all existing containers (if any)
+        run: |
+          if [ "$(docker ps -aq)" ]; then
+            sudo docker rm -f $(docker ps -aq)
+          fi
 
       - name: Run Redis Container
         run: docker run -d --name redis-container redis:alpine

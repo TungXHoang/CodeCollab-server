@@ -11,23 +11,11 @@ jobs:
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
-      # - name: Create .env file
-      #   run: |
-      #
-      #     echo "DB_URL=${{ secrets.DB_URL }}" > .env
-      #     echo "SECRET=${{ secrets.SESSION_SECRET }}" > .env
-      #     echo "RAPID_API_URL=${{ secrets.RAPID_API_URL }}" > .env
-      #     echo "RAPID_API_HOST=${{ secrets.RAPID_API_HOST }}" > .env
-      #     echo "RAPID_API_KEY=${{ secrets.RAPID_API_KEY }}" > .env
-      #     echo "VITE_SOCKET_PORT=${{ secrets.VITE_SOCKET_PORT }}" > .env
-      #     echo "VITE_BACKEND_PORT=${{ secrets.VITE_BACKEND_PORT }}" > .env
-      #     echo "AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }}" > .env
-      #     echo "AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }}" > .env
-      #     echo "AWS_BUCKET_NAME=${{ secrets.AWS_BUCKET_NAME }}" > .env
-      #     echo "AWS_BUCKET_REGION=${{ secrets.AWS_BUCKET_REGION }}" > .env
-      #     echo "AWS_DEFAULT_URL=${{ secrets.AWS_DEFAULT_URL }}" > .env
-      #     echo "AWS_DEFAULT_FILENAME=${{ secrets.AWS_DEFAULT_FILENAME }}" > .env
-      #     echo "ImageKit_Endpoint=${{ secrets.ImageKit_Endpoint }}" > .env
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16"
 
       - name: Login to Docker Hub
         run: docker login -u ${{secrets.DOCKER_USERNAME}} -p ${{secrets.DOCKER_PASSWORD}}
@@ -40,39 +28,30 @@ jobs:
 
   deploy:
     needs: build
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
-      - name: Pull Redis Image
-        run: sudo docker pull redis:alpine
+      - name: Pull Docker Image from Hub
+        run: docker pull hoangtung2354/codecollab-server:latest
 
-      - name: Pull image from docker hub
-        run: sudo docker pull hoangtung2354/codecollab-server:latest
-
-      - name: Remove all existing containers (if any)
-        run: |
-          if [ "$(docker ps -aq)" ]; then
-              sudo docker rm -f $(docker ps -aq)
-          fi
-
-      - name: Run Redis container
-        run: sudo docker run -d --name redis-container redis:alpine
+      - name: Run Redis Container
+        run: docker run -d --name redis-container redis:alpine
 
       - name: Run Server Container
         run: |
           docker run -d --name server-container --link redis-container:redis \
-            -e REDIS_URL=redis://redis:6379/0 \
-            -e DB_URL=${{secrets.DB_URL}} \
-            -e SECRET=${{secrets.SESSION_SECRET}} \
-            -e RAPID_API_URL=${{secrets.RAPID_API_URL}} \
-            -e RAPID_API_HOST=${{secrets.RAPID_API_HOST}} \
-            -e RAPID_API_KEY=${{secrets.RAPID_API_KEY}} \
-            -e VITE_SOCKET_PORT=${{secrets.VITE_SOCKET_PORT}} \
-            -e VITE_BACKEND_PORT=${{secrets.VITE_BACKEND_PORT}} \
-            -e AWS_ACCESS_KEY=${{secrets.AWS_ACCESS_KEY}} \
-            -e AWS_SECRET_KEY=${{secrets.AWS_SECRET_KEY}} \
-            -e AWS_BUCKET_NAME=${{secrets.AWS_BUCKET_NAME}} \
-            -e AWS_BUCKET_REGION=${{secrets.AWS_BUCKET_REGION}} \
-            -e AWS_DEFAULT_URL=${{secrets.AWS_DEFAULT_URL}} \
-            -e AWS_DEFAULT_FILENAME=${{secrets.AWS_DEFAULT_FILENAME}} \
-            -e ImageKit_Endpoint=${{secrets.ImageKit_Endpoint}} \
-            -p 3000:3000 hoangtung2354/codecollab-server:latest
+          -e REDIS_URL=redis://redis:6379/0 \
+          -e DB_URL=${{secrets.DB_URL}} \
+          -e SESSION_SECRET=${{secrets.SESSION_SECRET}} \
+          -e RAPID_API_URL=${{secrets.RAPID_API_URL}} \
+          -e RAPID_API_HOST=${{secrets.RAPID_API_HOST}} \
+          -e RAPID_API_KEY=${{secrets.RAPID_API_KEY}} \
+          -e VITE_SOCKET_PORT=${{secrets.VITE_SOCKET_PORT}} \
+          -e VITE_BACKEND_PORT=${{secrets.VITE_BACKEND_PORT}} \
+          -e AWS_ACCESS_KEY=${{secrets.AWS_ACCESS_KEY}} \
+          -e AWS_SECRET_KEY=${{secrets.AWS_SECRET_KEY}} \
+          -e AWS_BUCKET_NAME=${{secrets.AWS_BUCKET_NAME}} \
+          -e AWS_BUCKET_REGION=${{secrets.AWS_BUCKET_REGION}} \
+          -e AWS_DEFAULT_URL=${{secrets.AWS_DEFAULT_URL}} \
+          -e AWS_DEFAULT_FILENAME=${{secrets.AWS_DEFAULT_FILENAME}} \
+          -e ImageKit_Endpoint=${{secrets.ImageKit_Endpoint}} \
+          -p 3000:3000 hoangtung2354/codecollab-server:latest

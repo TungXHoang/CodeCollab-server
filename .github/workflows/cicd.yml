@@ -38,23 +38,21 @@ jobs:
 
       - name: Run Server Container
         run: |
-          docker run -d \
-            --name server-container \
-            --link redis-container:redis \
-            -e REDIS_URL=redis://redis:6379/0 \
-            -e DB_URL=${{ secrets.DB_URL }} \
-            -e SESSION_SECRET=${{ secrets.SESSION_SECRET }} \
-            -e RAPID_API_URL=${{ secrets.RAPID_API_URL }} \
-            -e RAPID_API_HOST=${{ secrets.RAPID_API_HOST }} \
-            -e RAPID_API_KEY=${{ secrets.RAPID_API_KEY }} \
-            -e VITE_SOCKET_PORT=${{ secrets.VITE_SOCKET_PORT }} \
-            -e VITE_BACKEND_PORT=${{ secrets.VITE_BACKEND_PORT }} \
-            -e AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }} \
-            -e AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }} \
-            -e AWS_BUCKET_NAME=${{ secrets.AWS_BUCKET_NAME }} \
-            -e AWS_BUCKET_REGION=${{ secrets.AWS_BUCKET_REGION }} \
-            -e AWS_DEFAULT_URL=${{ secrets.AWS_DEFAULT_URL }} \
-            -e AWS_DEFAULT_FILENAME=${{ secrets.AWS_DEFAULT_FILENAME }} \
-            -e ImageKit_Endpoint=${{ secrets.ImageKit_Endpoint }} \
+          docker run -d --name server-container --link redis-container:redis \
+            -e REDIS_URL= '${{secrets.REDIS_URL}}' \
+            -e DB_URL='${{ secrets.DB_URL }}' \
+            -e SESSION_SECRET='${{ secrets.SESSION_SECRET }}' \
+            -e RAPID_API_URL='${{ secrets.RAPID_API_URL }}' \
+            -e RAPID_API_HOST='${{ secrets.RAPID_API_HOST }}' \
+            -e RAPID_API_KEY='${{ secrets.RAPID_API_KEY }}' \
+            -e VITE_SOCKET_PORT='${{ secrets.VITE_SOCKET_PORT }}' \
+            -e VITE_BACKEND_PORT='${{ secrets.VITE_BACKEND_PORT }}' \
+            -e AWS_ACCESS_KEY='${{ secrets.AWS_ACCESS_KEY }}' \
+            -e AWS_SECRET_KEY='${{ secrets.AWS_SECRET_KEY }}' \
+            -e AWS_BUCKET_NAME='${{ secrets.AWS_BUCKET_NAME }}' \
+            -e AWS_BUCKET_REGION='${{ secrets.AWS_BUCKET_REGION }}' \
+            -e AWS_DEFAULT_URL='${{ secrets.AWS_DEFAULT_URL }}' \
+            -e AWS_DEFAULT_FILENAME='${{ secrets.AWS_DEFAULT_FILENAME }}' \
+            -e ImageKit_Endpoint='${{ secrets.ImageKit_Endpoint }}' \
             -p 3000:3000 \
             hoangtung2354/codecollab-server:latest

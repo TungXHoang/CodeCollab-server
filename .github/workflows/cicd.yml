@@ -28,7 +28,7 @@ jobs:
 
   deploy:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Pull Docker Image from Hub
         run: docker pull hoangtung2354/codecollab-server:latest

@@ -38,4 +38,4 @@ jobs:
 
       - name: Run Server Container
         run: |
-          docker run -d --name server-container --link redis-container:redis -e DB_URL=${{ secrets.DB_URL }} -p 3000:3000 hoangtung2354/codecollab-server:latest
+          docker run -d -p 3000:3000 --name server-container --link redis-container:redis -e DB_URL='${{ secrets.DB_URL }}' hoangtung2354/codecollab-server:latest

@@ -62,7 +62,7 @@ jobs:
           docker run -d --name server-container --link redis-container:redis \
             -e REDIS_URL=redis://redis:6379/0 \
             -e DB_URL=${{secrets.DB_URL}} \
-            -e SECRET=${{secrets.SECRET}} \
+            -e SECRET=${{secrets.SESSION_SECRET}} \
             -e RAPID_API_URL=${{secrets.RAPID_API_URL}} \
             -e RAPID_API_HOST=${{secrets.RAPID_API_HOST}} \
             -e RAPID_API_KEY=${{secrets.RAPID_API_KEY}} \

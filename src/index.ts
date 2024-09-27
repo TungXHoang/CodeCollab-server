@@ -50,7 +50,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Connect to redis
-const redis = new Redis();
+const redis = new Redis("redis://127.0.0.1:6379");
 redis.on('error', function (err:any) {
 	console.log('Could not establish a connection with redis. ' + err);
 })

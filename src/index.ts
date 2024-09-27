@@ -5,6 +5,7 @@ import express from "express";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 const Redis = require("ioredis");
+import IORedis from "ioredis";
 import RedisStore from "connect-redis";
 import session from "express-session";
 import passport from "passport";
@@ -50,7 +51,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Connect to redis
-const redis = new Redis("redis://127.0.0.1:6379");
+const redis = new IORedis("redis://127.0.0.1:6379");
 redis.on('error', function (err:any) {
 	console.log('Could not establish a connection with redis. ' + err);
 })

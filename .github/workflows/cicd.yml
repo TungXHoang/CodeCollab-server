@@ -50,8 +50,7 @@ jobs:
           -e RAPID_API_URL='${{ secrets.RAPID_API_URL }}' \
           -e RAPID_API_HOST='${{ secrets.RAPID_API_HOST }}' \
           -e RAPID_API_KEY='${{ secrets.RAPID_API_KEY }}' \
-          -e VITE_SOCKET_PORT='${{ secrets.VITE_SOCKET_PORT }}' \
-          -e VITE_BACKEND_PORT='${{ secrets.VITE_BACKEND_PORT }}' \
+          -e BACKEND_PORT='${{ secrets.BACKEND_PORT }}' \
           -e AWS_ACCESS_KEY='${{ secrets.AWS_ACCESS_KEY }}' \
           -e AWS_SECRET_KEY='${{ secrets.AWS_SECRET_KEY }}' \
           -e AWS_BUCKET_NAME='${{ secrets.AWS_BUCKET_NAME }}' \

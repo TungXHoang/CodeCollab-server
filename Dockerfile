@@ -1,9 +1,20 @@
-# Base image used  
-FROM node:alpine 
+# Base image
+FROM node:alpine
+
+# Set working directory
+WORKDIR /app
+
 COPY package*.json ./
-# Install project dependencies
+
+RUN npm cache clean -f
 RUN npm install
+
+COPY . ./
+
+# Build
+RUN npm run build
+
 EXPOSE 3000
-COPY ./ ./
-# Running default command
-CMD ["npm", "run", "dev"]
+
+# Run the Node.js server using the compiled JS files
+CMD ["npm", "run", "start"]

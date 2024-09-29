@@ -7,9 +7,9 @@ services:
   server:
     restart: on-failure
     # build: ./
-    image: codecollab/server:latest
+    image: hoangtung2354/codecollab-server:latest
     environment:
-      - REDIS_URL=redis://redis:6379/0
+      - REDIS_URL=${REDIS_URL_DEV}
     depends_on:
       - redis
     links:

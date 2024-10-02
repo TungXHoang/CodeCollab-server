@@ -43,7 +43,7 @@ jobs:
 
       - name: Run Server Container
         run: |
-          docker run -d -p 3000:3000 --name server-container --link redis-container:redis \
+          docker run -d -p 3000:3000 --network=codecollab --name server-container --link redis-container:redis \
           -e DB_URL='${{ secrets.DB_URL }}' \
           -e REDIS_URL='${{ secrets.REDIS_URL }}' \
           -e SESSION_SECRET='${{ secrets.SESSION_SECRET }}' \

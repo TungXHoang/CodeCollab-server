@@ -41,7 +41,7 @@ jobs:
 
       - name: Remove existing server container
         run: |
-          if [ ! "$(docker ps -a --format '{{.Names}}' | grep server-container)" ]; then
+          if [ "$(docker ps -a --format '{{.Names}}' | grep server-container)" ]; then
             docker stop server-container
             docker rm server-container 
           fi

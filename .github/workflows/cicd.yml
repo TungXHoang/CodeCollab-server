@@ -39,7 +39,7 @@ jobs:
           fi
 
       - name: Run Redis Container
-        run: docker run -d --name redis-container redis:alpine
+        run: docker run -d --name --network=codecollab redis-container redis:alpine
 
       - name: Run Server Container
         run: |

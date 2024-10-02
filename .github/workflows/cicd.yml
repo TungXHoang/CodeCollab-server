@@ -48,7 +48,7 @@ jobs:
 
       - name: Run Server Container
         run: |
-          docker run -d -p 3000:3000 --network=codecollab --name server-container --link redis-container:redis \
+          docker run -d -p 3000:3000 --network=codecollab --name server-container \
           -e DB_URL='${{ secrets.DB_URL }}' \
           -e REDIS_URL='${{ secrets.REDIS_URL }}' \
           -e SESSION_SECRET='${{ secrets.SESSION_SECRET }}' \
@@ -64,3 +64,6 @@ jobs:
           -e AWS_DEFAULT_FILENAME='${{ secrets.AWS_DEFAULT_FILENAME }}' \
           -e ImageKit_Endpoint='${{ secrets.ImageKit_Endpoint }}' \
           hoangtung2354/codecollab-server:latest
+
+      - name: Remove dangling images
+        run: docker rmi -f $(docker images -f "dangling=true" -q)

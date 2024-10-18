@@ -66,4 +66,8 @@ jobs:
           hoangtung2354/codecollab-server:latest
 
       - name: Remove dangling images
-        run: docker rmi -f $(docker images -f "dangling=true" -q)
+        run: |
+          images=$(docker images -f "dangling=true" -q)
+          if [ -n "$images" ]; then
+            docker rmi -f $images
+          fi

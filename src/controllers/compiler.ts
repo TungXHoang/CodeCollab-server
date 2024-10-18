@@ -14,7 +14,6 @@ export const handleCompile = async(req: Request, res: Response) => {
 		language_id: languageId,
 		source_code: btoa(code),
 	};
-	// console.log(formData);
 	const options = {
 		method: 'POST',
 		url: process.env.RAPID_API_URL,

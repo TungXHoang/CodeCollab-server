@@ -114,16 +114,21 @@ export const loginUser = ( req: Request, res: Response, next: NextFunction) => {
 	})(req, res, next);
 };
 
-export const getAllUser = async (req: Request, res: Response) => {
+
+export const getUserList = async (req: Request, res: Response) => { 
 	try {
-		const allUsers = await User.find({});
+		const query = req.params.query
+		const regex = new RegExp(query, "i"); // "i" for case-insensitive
+
+		// Find users where the email contains the search query, limiting the results
+		const allUsers = await User.find({ email: { $regex: regex } })
+			.limit(6); // Limit the number of results to the specified limit
+
 		return res.status(200).json(allUsers);
+	} catch (err) {
+		console.log(err);
+		return res.status(500).json({ msg: "Internal server error" });
 	}
-	catch (err) {
-		console.log(err)
-		return res.status(500).json({ msg: "Internal server erorr" });
-	}
-	
 }
 
 export const getSingleUser = async (req: Request, res: Response) => {
